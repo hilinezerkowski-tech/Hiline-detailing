@@ -97,4 +97,75 @@ exports.handler = async function(event) {
     const groupConfig = SERVICE_GROUPS[serviceType] || { groups: [DEFAULT_GROUP_ID] };
     const groupIds = groupConfig.groups.filter(id => id); // Usuń puste stringi
 
-    // Mapowanie usługi na pow�
+    // Mapowanie usługi na powłokę
+    let powlokaValue = data.powloka || '';
+    if (!powlokaValue && data.service_type) {
+      const powlokaMap = {
+        'powloka_3letnia': 'Powłoka ceramiczna 3-letnia',
+        'powloka_5letnia': 'Powłoka ceramiczna 5-letnia',
+        'folia_ppf': 'Folia PPF',
+        'promocje': ''
+      };
+      powlokaValue = powlokaMap[data.service_type] || '';
+    }
+
+    const payload = {
+      email: data.email,
+      fields: {
+        // Standardowe pola MailerLite
+        name:      first_name || '',
+        last_name: last_name  || '',
+        phone:     data.tel   || '',
+        // Custom fields Hiline
+        pojazd:       data.car     || '',
+        usluga:       data.usluga  || '',
+        data_serwisu: dataSerwisu,
+        powloka:      powlokaValue,
+      },
+      groups: groupIds,
+      status: 'active'
+    };
+
+    console.log('📤 Wysyłam do MailerLite:', {
+      email: data.email,
+      name: first_name,
+      tel: data.tel,
+      car: data.car,
+      usluga: data.usluga,
+      service_type: serviceType,
+      groups: groupIds
+    });
+
+    const { ok, status, data: result } = await mlFetch('/subscribers', 'POST', payload);
+
+    if (!ok) {
+      console.error('❌ MailerLite error:', result);
+      return {
+        statusCode: status,
+        headers: CORS_HEADERS,
+        body: JSON.stringify({ error: result?.message || 'Błąd MailerLite' })
+      };
+    }
+
+    console.log('✅ Subscriber saved:', result?.data?.id, 'Email:', data.email, 'Grupy:', groupIds);
+
+    return {
+      statusCode: 200,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({
+        success: true,
+        id: result?.data?.id,
+        email: data.email,
+        groups: groupIds
+      })
+    };
+
+  } catch (err) {
+    console.error('❌ Function error:', err.message);
+    return {
+      statusCode: 500,
+      headers: CORS_HEADERS,
+      body: JSON.stringify({ error: err.message })
+    };
+  }
+};

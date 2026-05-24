@@ -1154,4 +1154,75 @@
       subscribeToMailerLite(name, email, tel, car, usluga, serviceType);
     }
 
-  
+    closeAddModalDirect();
+  }
+
+  // ===== MAILERLITE SUBSCRIBE =====
+  function subscribeToMailerLite(name, email, tel, car, usluga, serviceType) {
+    const payload = {
+      name: name || '',
+      email: email || '',
+      tel: tel || '',
+      car: car || '',
+      usluga: usluga || '',
+      service_type: serviceType || 'promocje',
+      dataSerwisu: new Date().toISOString().split('T')[0]
+    };
+
+    fetch('/.netlify/functions/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        console.log('✓ Dodano do MailerLite (ID: ' + data.id + ')');
+        console.log('✓ Dane zsynchronizowane: ' + email);
+      } else {
+        console.error('✗ Błąd MailerLite:', data.error);
+      }
+    })
+    .catch(err => console.error('✗ Błąd wysyłki do MailerLite:', err));
+  }
+
+  // ===== EKSPORT CSV =====
+  function exportCSV() {
+    if (clients.length === 0) { alert('Brak klientów do eksportu.'); return; }
+
+    const uslugaLabel = { ceramika: 'Powłoka ceramiczna', folia: 'Folia PPF', mycie: 'Mycie detailingowe', polerowanie: 'Polerowanie', inne: 'Inne' };
+    const powlokaLabel = { brak: 'Brak', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', ppf: 'Folia PPF' };
+
+    const headers = ['Imię i Nazwisko', 'Telefon', 'Email', 'Pojazd', 'Usługa', 'Typ powłoki', 'Data serwisu', 'Następne przypomnienie', 'Uwagi'];
+
+    const rows = clients.map(function(c) {
+      const rd = reminderDate(c);
+      const rdStr = rd ? rd.toLocaleDateString('pl-PL') : '';
+      return [
+        c.name, c.tel, c.email || '', c.car,
+        uslugaLabel[c.usluga] || c.usluga,
+        powlokaLabel[c.powloka || 'brak'] || c.powloka,
+        c.dataSerwisu || c.dataAdded,
+        rdStr,
+        (c.uwagi || '').replace(/\n/g, ' ')
+      ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
+    });
+
+    const bom = '﻿';
+    const csv = bom + [headers.map(function(h) { return '"' + h + '"'; }).join(';')].concat(rows).join('\r\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = 'hiline-klienci-' + date + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ===== START =====
+  checkAuth();
+</script>
+</body>
+</html>
