@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiline — Rejestracja Pojazdu</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --dark: #111111;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --red: #BA2025;
+    --red-light: #d42b31;
+    --white: #f5f5f0;
+    --muted: #888;
+    --green: #4caf7d;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--dark);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-img {
+    height: 44px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* HERO */
+  .hero-bg {
+    position: relative;
+    width: 100%;
+    min-height: 220px;
+    background-image: url('assets/zdjecia/hiline_001.jpg');
+    background-size: cover;
+    background-position: center 40%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .hero-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(10,10,10,0.55) 0%, rgba(10,10,10,0.75) 100%);
+  }
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 36px 16px 32px;
+  }
+  .hero-content h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 5px;
+    color: var(--white);
+    line-height: 1;
+    text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  }
+  .hero-content h1 span {
+    color: var(--red);
+  }
+  .hero-content p {
+    color: rgba(245,245,240,0.75);
+    margin-top: 10px;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+
+  /* FORM */
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 16px 48px;
+  }
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px;
+    width: 100%;
+    max-width: 520px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  input, select {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(186,32,37,0.15); }
+  select option { background: var(--dark); }
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--red-light); }
+  .btn-primary:active { transform: scale(0.99); }
+  .success-msg { display: none; text-align: center; padding: 24px 0; }
+  .success-msg .icon { font-size: 56px; margin-bottom: 16px; }
+  .success-msg h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--green);
+    letter-spacing: 2px;
+  }
+  .success-msg p { color: var(--muted); margin-top: 8px; line-height: 1.6; }
+  .success-msg .btn-primary { margin-top: 24px; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: #444;
+  }
+  footer img {
+    height: 20px;
+    width: auto;
+    opacity: 0.3;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @media (max-width: 560px) {
+    .form-card { padding: 24px 20px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .hero-content h1 { font-size: 38px; }
+  }
+</style>
+
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#BA2025">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hiline">
+</head>
+<body>
+
+<nav>
+  <img class="logo-img" src="assets/logo-hiline-white.svg" alt="Hiline Wrap &amp; Detailing">
+</nav>
+
+<div class="hero-bg">
+  <div class="hero-content">
+    <h1>REJESTRACJA <span>POJAZDU</span></h1>
+    <p>Zostaw swoje dane — będziemy przypominać o serwisie</p>
+  </div>
+</div>
+
+<main>
+  <div class="form-card">
+    <div id="form-fields">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Imię i Nazwisko *</label>
+          <input type="text" id="f-name" placeholder="Jan Kowalski" autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label>Telefon *</label>
+          <input type="tel" id="f-tel" placeholder="600 000 000" value="+48 " autocomplete="tel">
+        </div>
+        <div class="form-group full">
+          <label>Adres Email *</label>
+          <input type="email" id="f-email" placeholder="jan@gmail.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label>Marka pojazdu *</label>
+          <input type="text" id="f-marka" placeholder="np. BMW">
+        </div>
+        <div class="form-group">
+          <label>Model i Rocznik</label>
+          <input type="text" id="f-model" placeholder="np. X5 2021">
+        </div>
+        <div class="form-group full">
+          <label>Usługa</label>
+          <select id="f-usluga">
+            <option value="">-- Wybierz usługę --</option>
+            <option value="ceramika3">Powłoka ceramiczna 3-letnia</option>
+            <option value="ceramika5">Powłoka ceramiczna 5-letnia</option>
+            <option value="ppf">Folia PPF</option>
+            <option value="mycie">Mycie / Detailing</option>
+            <option value="zmiana_koloru">Zmiana koloru</option>
+            <option value="inne">Inne</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="submitForm()">ZAREJESTRUJ POJAZD →</button>
+    </div>
+
+    <div class="success-msg" id="form-success">
+      <div class="icon">✅</div>
+      <h2>DZIĘKUJEMY!</h2>
+      <p>Twoje dane zostały zapisane.<br>Skontaktujemy się z Tobą po wykonaniu usługi.</p>
+      <button class="btn-primary" onclick="resetForm()">Dodaj kolejny pojazd</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <img src="assets/Logo Hiline/logo HI-01.png" alt="Hiline">
+  © Hiline Wrap &amp; Detailing — Pruszków
+</footer>
+
+<script>
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  async function addToMailerLite(payload) {
+    try {
+      const res = await fetch('/.netlify/functions/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (!res.ok) console.warn('MailerLite warning:', result);
+    } catch(e) {
+      console.log('MailerLite error:', e);
+    }
+  }
+
+  async function submitForm() {
+    const name    = document.getElementById('f-name').value.trim();
+    const tel     = document.getElementById('f-tel').value.trim();
+    const email   = document.getElementById('f-email').value.trim();
+    const marka   = document.getElementById('f-marka').value.trim();
+    const model   = document.getElementById('f-model').value.trim();
+    const usluga  = document.getElementById('f-usluga').value;
+
+    if (!name || !tel || !email || !marka) {
+      alert('Wypełnij wymagane pola: Imię, Telefon, Email i Markę pojazdu');
+      return;
+    }
+
+    const car          = marka + (model ? ' ' + model : '');
+    const dataSerwisu  = new Date().toISOString().split('T')[0];
+    const usugaVal     = usluga || 'inne';
+
+    const client = {
+      id: generateId(),
+      name, tel, email,
+      car,
+      usluga:        usugaVal,
+      powloka:       usugaVal,
+      dataAdded:     dataSerwisu,
+      dataSerwisu:   dataSerwisu,
+      uwagi: '',
+      status: 'nowy'
+    };
+
+    const clients = JSON.parse(localStorage.getItem('hiline_clients') || '[]');
+    clients.unshift(client);
+    localStorage.setItem('hiline_clients', JSON.stringify(clients));
+
+    await addToMailerLite({
+      name, email, tel,
+      car,
+      usluga:      usugaVal,
+      powloka:     usugaVal,
+      dataSerwisu
+    });
+
+    document.getElementById('form-fields').style.display = 'none';
+    document.getElementById('form-success').style.display = 'block';
+  }
+
+  function resetForm() {
+    document.getElementById('form-fields').style.display = 'block';
+    document.getElementById('form-success').style.display = 'none';
+    ['f-name','f-tel','f-email','f-marka','f-model'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-usluga').value = '';
+  }
+</script>
+</body>
+</html>

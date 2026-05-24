@@ -1,0 +1,57 @@
+🚀 HILINE — AUTOMATION GOTOWA DO AKTYWACJI
+
+Data: 2026-05-24
+Automation ID: 188323759364506811
+Status: ✅ UTWORZONA, CZEKA NA AKTYWACJĘ
+
+═══════════════════════════════════════════════════════════════
+
+📋 CO ZOSTAŁO ZROBIONE:
+
+✅ Automation "Hiline — Przypomnienia serwisowe ceramika" utworzona
+✅ 7 emaili serwisowych skonfigurowanych (14 kroków w systemie)
+✅ Trigger ustawiony na grupę "Klienci Hiline"
+✅ Wszystkie delays skonfigurowane (14 dni + 6x180 dni)
+✅ Treści emaili z personalizacją {$name}
+
+═══════════════════════════════════════════════════════════════
+
+⚡ CO ZROBIĆ TERAZ:
+
+1. Otwórz link:
+   👉 https://dashboard.mailerlite.com/automations/188323759364506811
+
+2. Kliknij przycisk "ENABLE" (prawy górny róg)
+
+3. Potwierdź aktywację w popup'ie
+
+4. GOTOWE! ✅
+
+═══════════════════════════════════════════════════════════════
+
+📧 EMAILE KTÓRE BĘDĄ WYSYŁANE:
+
+1. 🎁 Dzień 14: Darmowe mycie sprawdzające
+2. ⏰ Dzień 194: Serwis 6-miesięczny
+3. 🗓️ Dzień 374: Serwis roczny
+4. 🔍 Dzień 554: Sprawdzenie 18-miesięczne
+5. 2️⃣ Dzień 734: Serwis 2-letni
+6. ⚠️ Dzień 914: Zbliżenie do końca gwarancji
+7. ⭐ Dzień 1094: Koniec gwarancji + nowa powłoka
+
+═══════════════════════════════════════════════════════════════
+
+✨ NOTATKI:
+
+- Automation będzie działać dla NOWYCH klientów dodanych do grupy "Klienci Hiline"
+- Emaile będą wysyłane automatycznie w odpowiednich intervalach
+- Każdy email jest spersonalizowany nazwą klienta {$name}
+- Email 7 zawiera placeholder [NUMER TELEFONU] — zmień na rzeczywisty numer
+
+═══════════════════════════════════════════════════════════════
+
+Pełne raporty:
+- MailerLite_Automation_COMPLETED.md (szczegółowa dokumentacja)
+- MailerLite_Automation_Status_Report.md (status i opcje)
+
+═══════════════════════════════════════════════════════════════

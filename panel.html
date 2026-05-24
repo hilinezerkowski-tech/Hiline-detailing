@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiline — Panel Zespołu</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --dark: #111111;
+    --card: #1a1a1a;
+    --border: #2a2a2a;
+    --red: #BA2025;
+    --red-light: #d42b31;
+    --white: #f5f5f0;
+    --muted: #888;
+    --danger: #e05252;
+    --green: #4caf7d;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+  }
+  .login-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+  }
+  .login-logo {
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-logo img {
+    height: 56px;
+    width: auto;
+    object-fit: contain;
+  }
+  .login-sub {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+  .login-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: block;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+  .login-input {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 13px 16px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .login-input:focus { border-color: var(--red); }
+  .login-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .login-btn:hover { background: var(--red-light); }
+  .login-error {
+    color: var(--danger);
+    font-size: 13px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* NAV */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--dark);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .logo-nav img {
+    height: 36px;
+    width: auto;
+    object-fit: contain;
+  }
+  .logo-nav span {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* MAIN */
+  .main { padding: 28px; max-width: 1200px; margin: 0 auto; }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .panel-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 3px;
+    color: var(--red);
+  }
+  .btn-add {
+    padding: 10px 20px;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-add:hover { background: var(--red-light); }
+  .btn-csv {
+    padding: 10px 18px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-csv:hover { border-color: var(--red); color: var(--red); }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+  }
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    color: var(--red);
+    line-height: 1;
+  }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .search-input {
+    flex: 1;
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 14px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--red); }
+  .filter-select {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 12px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+  .filter-select option { background: var(--dark); }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 11px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background: #141414;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #1f1f1f; }
+  td { padding: 13px 14px; font-size: 14px; }
+
+  .td-name { font-weight: 600; }
+  .td-date { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .td-car { color: var(--muted); font-size: 13px; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-ceramika { background: rgba(186,32,37,0.15); color: var(--red); }
+  .badge-folia { background: rgba(76,175,125,0.15); color: var(--green); }
+  .badge-mycie { background: rgba(100,150,255,0.15); color: #7aabff; }
+  .badge-polerowanie { background: rgba(180,100,255,0.15); color: #c07aff; }
+  .badge-inne { background: rgba(200,200,200,0.08); color: var(--muted); }
+
+  .reminder-tag { font-size: 12px; color: var(--muted); }
+  .reminder-tag.soon { color: #ff9f43; font-weight: 600; }
+  .reminder-tag.overdue { color: var(--danger); font-weight: 600; }
+
+  .wa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    background: rgba(37,211,102,0.1);
+    color: #25d366;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .wa-btn:hover { background: rgba(37,211,102,0.2); }
+
+  .empty-state {
+    text-align: center;
+    padding: 56px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 580px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 30px;
+  }
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+  .modal-header h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--red);
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 22px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--white); }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-item label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+  .info-item p { font-size: 15px; margin-top: 3px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .form-group:last-child { margin-bottom: 0; }
+  .form-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  input[type="text"], input[type="date"], input[type="email"], input[type="tel"], select {
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--red); box-shadow: 0 0 0 2px rgba(186,32,37,0.12); }
+  select option { background: var(--dark); }
+  textarea {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 14px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { border-color: var(--red); }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .btn-sm {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-gold { background: var(--red); color: var(--white); }
+  .btn-gold:hover { background: var(--red-light); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--white); }
+  .btn-outline:hover { border-color: var(--red); color: var(--red); }
+  .btn-success { background: var(--green); color: var(--white); }
+  .btn-success:hover { background: #3d9a68; }
+  .btn-danger { background: transparent; border: 1px solid var(--border); color: var(--danger); }
+  .btn-danger:hover { border-color: var(--danger); background: rgba(224,82,82,0.1); }
+
+  /* ADD CLIENT MODAL */
+  .add-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .add-modal-overlay.open { display: flex; }
+
+  /* HARMONOGRAM PRZYPOMNIEŃ */
+  .schedule-list { display: flex; flex-direction: column; gap: 6px; }
+  .schedule-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--black);
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .schedule-item.past { opacity: 0.4; }
+  .schedule-item.next { border-color: var(--red); background: rgba(186,32,37,0.08); }
+  .schedule-item.final-step { border-color: #ff9f43; background: rgba(255,159,67,0.08); }
+  .schedule-item.free-wash { border-color: #4caf7d; background: rgba(76,175,125,0.08); }
+  .schedule-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--muted);
+  }
+  .schedule-item.past .schedule-dot { background: var(--border); }
+  .schedule-item.next .schedule-dot { background: var(--red); }
+  .schedule-item.final-step .schedule-dot { background: #ff9f43; }
+  .schedule-item.free-wash .schedule-dot { background: #4caf7d; }
+  .schedule-date { font-weight: 600; min-width: 90px; color: var(--white); }
+  .schedule-item.past .schedule-date { color: var(--muted); }
+  .schedule-label { color: var(--muted); flex: 1; }
+  .schedule-item.next .schedule-label { color: var(--white); }
+  .schedule-item.final-step .schedule-label { color: #ff9f43; font-weight: 600; }
+  .schedule-item.free-wash .schedule-label { color: #4caf7d; font-weight: 600; }
+  .sched-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .sched-badge-next { background: rgba(186,32,37,0.2); color: var(--red); }
+  .sched-badge-done { background: rgba(100,100,100,0.15); color: var(--muted); }
+  .sched-badge-final { background: rgba(255,159,67,0.2); color: #ff9f43; }
+  .no-schedule { color: var(--muted); font-size: 13px; padding: 4px 0; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 700px) {
+    nav { padding: 12px 16px; }
+    .main { padding: 16px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    table { font-size: 13px; }
+    td, th { padding: 10px 10px; }
+    .modal { padding: 20px; }
+  }
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<link rel="manifest" href="/manifest-panel.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#BA2025">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hiline Panel">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">
+      <img src="assets/logo-hiline-white.svg" alt="Hiline">
+    </div>
+    <div class="login-sub">Panel Zespołu</div>
+    <label class="login-label">Hasło dostępu</label>
+    <input class="login-input" type="password" id="login-pass" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') doLogin()">
+    <button class="login-btn" onclick="doLogin()">WEJDŹ →</button>
+    <div class="login-error" id="login-error">❌ Nieprawidłowe hasło</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo-nav">
+    <img src="assets/logo-hiline-white.svg" alt="Hiline">
+    <span>Panel Zespołu</span>
+  </div>
+  <div class="nav-right">
+    <button class="logout-btn" onclick="doLogout()">Wyloguj</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="panel-header">
+    <h2>KLIENCI</h2>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn-csv" onclick="exportCSV()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Eksportuj CSV
+      </button>
+      <button class="btn-add" onclick="openAddModal()">+ Dodaj klienta</button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Wszyscy klienci</div>
+      <div class="stat-value" id="stat-total">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Przypomnień w tym miesiącu</div>
+      <div class="stat-value" id="stat-reminders" style="color:#ff9f43">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Przeterminowane</div>
+      <div class="stat-value" id="stat-overdue" style="color:var(--danger)">0</div>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-toolbar">
+      <input class="search-input" type="text" placeholder="🔍 Szukaj klienta, auta, telefonu..." oninput="filterTable(this.value)">
+      <select class="filter-select" onchange="filterTable(document.querySelector('.search-input').value, this.value)">
+        <option value="">Wszystkie usługi</option>
+        <option value="ceramika">Ceramika</option>
+        <option value="folia">Folia PPF</option>
+        <option value="mycie">Mycie</option>
+        <option value="polerowanie">Polerowanie</option>
+        <option value="inne">Inne</option>
+      </select>
+    </div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Klient</th>
+            <th>Pojazd</th>
+            <th>Usługa</th>
+            <th>Telefon</th>
+            <th>Następny serwis</th>
+            <th>Akcje</th>
+          </tr>
+        </thead>
+        <tbody id="clients-tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="empty-state">
+      <div class="icon">🚗</div>
+      <p>Brak klientów w bazie.</p>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL KLIENTA -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-title">KLIENT</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Dane klienta</div>
+      <div class="info-grid">
+        <div class="info-item"><label>Imię i Nazwisko</label><p id="m-name">—</p></div>
+        <div class="info-item"><label>Telefon</label><p id="m-tel">—</p></div>
+        <div class="info-item"><label>Email</label><p id="m-email" style="font-size:13px">—</p></div>
+        <div class="info-item"><label>Pojazd</label><p id="m-car">—</p></div>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Wykonana usługa</div>
+      <div class="form-group">
+        <label>Typ usługi</label>
+        <select id="m-usluga">
+          <option value="ceramika3">Powłoka ceramiczna 3-letnia</option>
+          <option value="ceramika5">Powłoka ceramiczna 5-letnia</option>
+          <option value="ppf">Folia PPF</option>
+          <option value="mycie">Mycie / Detailing</option>
+          <option value="zmiana_koloru">Zmiana koloru</option>
+          <option value="inne">Inne</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Data serwisu</label>
+        <input type="date" id="m-data">
+      </div>
+      <div class="form-group">
+        <label>Uwagi / Opis pracy</label>
+        <textarea id="m-uwagi" placeholder="np. Powłoka ceramiczna 3-letnia, korekta lakieru..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Plan przypomnień dla klienta</div>
+      <div class="form-group">
+        <label>Typ zastosowanej powłoki</label>
+        <select id="m-powloka" onchange="updateReminderSchedule()">
+          <option value="ceramika3">Powłoka ceramiczna 3-letnia</option>
+          <option value="ceramika5">Powłoka ceramiczna 5-letnia</option>
+          <option value="ppf">Folia PPF</option>
+          <option value="mycie">Mycie / Detailing</option>
+          <option value="zmiana_koloru">Zmiana koloru</option>
+          <option value="brak">Inne / Brak harmonogramu</option>
+        </select>
+      </div>
+      <div id="reminder-schedule" style="margin-top:12px"></div>
+    </div>
+
+    <div class="modal-section">
+      <div class="modal-section-title">Kontakt przez WhatsApp</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
+        Wyślij klientowi zdjęcia po wykonanej usłudze bezpośrednio przez WhatsApp
+      </div>
+      <a id="wa-link" href="#" target="_blank" class="wa-btn" style="font-size:14px;padding:10px 16px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Otwórz WhatsApp z tym klientem
+      </a>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-sm btn-gold" onclick="saveClient()">💾 Zapisz</button>
+      <button class="btn-sm btn-success" onclick="bookVisitWhatsApp()">📅 Umów wizytę</button>
+      <button class="btn-sm btn-outline" onclick="closeModalDirect()">Zamknij</button>
+      <button class="btn-sm btn-danger" onclick="deleteClient()">🗑 Usuń klienta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DODAJ KLIENTA -->
+<div class="add-modal-overlay" id="add-modal-overlay" onclick="closeAddModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>NOWY KLIENT</h3>
+      <button class="modal-close" onclick="closeAddModalDirect()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Imię i Nazwisko *</label>
+      <input type="text" id="a-name" placeholder="Jan Kowalski">
+    </div>
+    <div class="form-group">
+      <label>Telefon *</label>
+      <input type="tel" id="a-tel" placeholder="600 000 000" value="+48 ">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="a-email" placeholder="jan@gmail.com">
+    </div>
+    <div class="form-group">
+      <label>Pojazd (Marka Model Rocznik)</label>
+      <input type="text" id="a-car" placeholder="BMW X5 2021">
+    </div>
+    <div class="form-group">
+      <label>Usługa</label>
+      <select id="a-usluga">
+        <option value="ceramika">Powłoka ceramiczna</option>
+        <option value="folia">Folia PPF</option>
+        <option value="mycie">Mycie detailingowe</option>
+        <option value="polerowanie">Polerowanie</option>
+        <option value="inne">Inne</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Typ Powłoki / Gwarancja</label>
+      <select id="a-powloka-type">
+        <option value="">— Brak —</option>
+        <option value="powloka_3letnia">Powłoka ceramiczna 3-letnia</option>
+        <option value="powloka_5letnia">Powłoka ceramiczna 5-letnia</option>
+        <option value="folia_ppf">Folia PPF</option>
+        <option value="promocje">Inna usługa (Promocje)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Uwagi</label>
+      <textarea id="a-uwagi" placeholder="Opcjonalne uwagi..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm btn-gold" onclick="addClientManual()">+ Dodaj klienta</button>
+      <button class="btn-sm btn-outline" onclick="closeAddModalDirect()">Anuluj</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== AUTH =====
+  const PASS = 'Hiline2025';
+  const SESSION_KEY = 'hiline_auth';
+
+  function checkAuth() {
+    if (sessionStorage.getItem(SESSION_KEY) === 'ok') {
+      document.getElementById('login-overlay').style.display = 'none';
+      init();
+    }
+  }
+
+  function doLogin() {
+    const val = document.getElementById('login-pass').value;
+    if (val === PASS) {
+      sessionStorage.setItem(SESSION_KEY, 'ok');
+      document.getElementById('login-overlay').style.display = 'none';
+      init();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-pass').focus();
+    }
+  }
+
+  function doLogout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    location.reload();
+  }
+
+  // ===== DATA =====
+  let clients = [];
+  let editingId = null;
+  let currentFilter = '';
+  let currentUsluga = '';
+
+  function loadClients() {
+    clients = JSON.parse(localStorage.getItem('hiline_clients') || '[]');
+  }
+
+  function saveClients() {
+    localStorage.setItem('hiline_clients', JSON.stringify(clients));
+  }
+
+  function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+
+  // ===== HARMONOGRAM PRZYPOMNIEŃ =====
+  const SCHEDULES = {
+    ceramika3: [
+      { days: 14,   label: '🎁 Darmowe mycie sprawdzające (2 tygodnie po aplikacji)', free: true },
+      { months: 6,  label: 'Kontrolne mycie / sprawdzenie powłoki' },
+      { months: 12, label: 'Roczny serwis powłoki' },
+      { months: 18, label: 'Sprawdzenie stanu powłoki' },
+      { months: 24, label: 'Serwis powłoki (2 lata)' },
+      { months: 30, label: 'Sprawdzenie stanu powłoki' },
+      { months: 36, label: '⭐ Koniec gwarancji — propozycja nowej powłoki ceramicznej!', final: true },
+    ],
+    ceramika5: [
+      { days: 14,   label: '🎁 Darmowe mycie sprawdzające (2 tygodnie po aplikacji)', free: true },
+      { months: 6,  label: 'Kontrolne mycie / sprawdzenie powłoki' },
+      { months: 12, label: 'Roczny serwis powłoki' },
+      { months: 18, label: 'Sprawdzenie stanu powłoki' },
+      { months: 24, label: 'Serwis powłoki (2 lata)' },
+      { months: 30, label: 'Sprawdzenie stanu powłoki' },
+      { months: 36, label: 'Serwis powłoki (3 lata)' },
+      { months: 42, label: 'Sprawdzenie stanu powłoki' },
+      { months: 48, label: 'Serwis powłoki (4 lata)' },
+      { months: 54, label: 'Sprawdzenie stanu powłoki' },
+      { months: 60, label: '⭐ Koniec gwarancji — propozycja nowej powłoki ceramicznej!', final: true },
+    ],
+    ppf: [
+      { days: 14,   label: '🎁 Darmowe mycie sprawdzające (2 tygodnie po aplikacji)', free: true },
+      { months: 6,  label: 'Sprawdzenie folii PPF' },
+      { months: 12, label: 'Kontrolny przegląd folii (1 rok)' },
+      { months: 18, label: 'Sprawdzenie folii PPF' },
+      { months: 24, label: 'Przegląd folii (2 lata)' },
+      { months: 30, label: 'Sprawdzenie folii PPF' },
+      { months: 36, label: 'Przegląd folii (3 lata)' },
+      { months: 42, label: 'Sprawdzenie folii PPF' },
+      { months: 48, label: 'Przegląd folii (4 lata)' },
+      { months: 54, label: 'Sprawdzenie folii PPF' },
+      { months: 60, label: '⭐ Koniec okresu — propozycja odnowienia folii PPF!', final: true },
+    ],
+    mycie: [
+      { months: 6,  label: 'Przypomnienie o myciu detailingowym' },
+      { months: 12, label: 'Przypomnienie o myciu detailingowym' },
+      { months: 18, label: 'Przypomnienie o myciu detailingowym' },
+      { months: 24, label: 'Przypomnienie o myciu detailingowym' },
+      { months: 30, label: 'Przypomnienie o myciu detailingowym' },
+      { months: 36, label: 'Przypomnienie o myciu detailingowym' },
+      { months: 42, label: 'Przypomnienie o myciu detailingowym' },
+      { months: 48, label: 'Przypomnienie o myciu detailingowym' },
+    ],
+    zmiana_koloru: [
+      { days: 14,   label: '🎁 Darmowe mycie sprawdzające (2 tygodnie po aplikacji)', free: true },
+      { months: 6,  label: 'Sprawdzenie stanu folii zmieniającej kolor' },
+      { months: 12, label: 'Roczny przegląd folii / korekta' },
+      { months: 18, label: 'Sprawdzenie stanu folii' },
+      { months: 24, label: 'Przegląd folii (2 lata)' },
+      { months: 30, label: 'Sprawdzenie stanu folii' },
+      { months: 36, label: '⭐ Propozycja odnowienia lub zmiany koloru!', final: true },
+    ],
+    brak: [
+      { months: 6,  label: 'Kontrolny kontakt z klientem' },
+      { months: 12, label: 'Roczne przypomnienie o serwisie' },
+    ],
+  };
+
+  function addMonths(dateStr, months) {
+    const d = new Date(dateStr);
+    d.setMonth(d.getMonth() + months);
+    return d;
+  }
+
+  function stepDate(dateStr, step) {
+    const d = new Date(dateStr);
+    if (step.days) {
+      d.setDate(d.getDate() + step.days);
+    } else {
+      d.setMonth(d.getMonth() + step.months);
+    }
+    return d;
+  }
+
+  // ===== INIT =====
+  function init() {
+    loadClients();
+    updateStats();
+    renderTable();
+  }
+
+  // ===== STATS =====
+  function reminderDate(c) {
+    const base = c.dataSerwisu || c.dataAdded;
+    if (!base) return null;
+    const schedule = SCHEDULES[c.powloka || 'brak'] || SCHEDULES.brak;
+    const now = new Date();
+    for (const step of schedule) {
+      const d = stepDate(base, step);
+      if (d >= now) return d;
+    }
+    const last = schedule[schedule.length - 1];
+    return last ? stepDate(base, last) : null;
+  }
+
+  function updateStats() {
+    document.getElementById('stat-total').textContent = clients.length;
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    let soon = 0, overdue = 0;
+    clients.forEach(c => {
+      const rd = reminderDate(c);
+      if (!rd) return;
+      const diff = Math.round((rd - now) / 86400000);
+      if (diff < 0) overdue++;
+      else if (rd <= endOfMonth) soon++;
+    });
+    document.getElementById('stat-reminders').textContent = soon;
+    document.getElementById('stat-overdue').textContent = overdue;
+  }
+
+  // ===== TABLE =====
+  function badgeClass(u) {
+    const map = { ceramika:'badge-ceramika', folia:'badge-folia', mycie:'badge-mycie', polerowanie:'badge-polerowanie' };
+    return map[u] || 'badge-inne';
+  }
+  function badgeLabel(u) {
+    const map = { ceramika:'Ceramika', folia:'Folia PPF', mycie:'Mycie', polerowanie:'Polerowanie', inne:'Inne' };
+    return map[u] || u;
+  }
+
+  function reminderStatus(c) {
+    const rd = reminderDate(c);
+    if (!rd) return { label: '—', cls: '' };
+    const now = new Date();
+    const diff = Math.round((rd - now) / 86400000);
+    const label = rd.toLocaleDateString('pl-PL');
+    if (diff < 0) return { label: '⚠ ' + label, cls: 'overdue' };
+    if (diff <= 30) return { label: '🔔 ' + label, cls: 'soon' };
+    return { label, cls: '' };
+  }
+
+  function filterTable(q, usluga) {
+    if (q !== undefined) currentFilter = q.toLowerCase();
+    if (usluga !== undefined) currentUsluga = usluga;
+    renderTable();
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('clients-tbody');
+    const empty = document.getElementById('empty-state');
+
+    const filtered = clients.filter(c => {
+      const matchQ = !currentFilter ||
+        c.name.toLowerCase().includes(currentFilter) ||
+        c.car.toLowerCase().includes(currentFilter) ||
+        c.tel.includes(currentFilter) ||
+        (c.email || '').toLowerCase().includes(currentFilter);
+      const matchU = !currentUsluga || c.usluga === currentUsluga;
+      return matchQ && matchU;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map(c => {
+      const rs = reminderStatus(c);
+      const waHref = 'https://wa.me/' + c.tel.replace(/\D/g, '');
+      return '<tr onclick="openClient(\'' + c.id + '\')">' +
+        '<td><div class="td-name">' + c.name + '</div><div class="td-date">' + c.dataAdded + '</div></td>' +
+        '<td class="td-car">' + c.car + '</td>' +
+        '<td><span class="badge ' + badgeClass(c.usluga) + '">' + badgeLabel(c.usluga) + '</span></td>' +
+        '<td><a href="tel:' + c.tel + '" onclick="event.stopPropagation()" style="color:var(--red);text-decoration:none;font-weight:600">' + c.tel + '</a></td>' +
+        '<td><span class="reminder-tag ' + rs.cls + '">' + rs.label + '</span></td>' +
+        '<td><a class="wa-btn" href="' + waHref + '" target="_blank" onclick="event.stopPropagation()">' +
+        '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>' +
+        'WA</a></td></tr>';
+    }).join('');
+  }
+
+  // ===== HARMONOGRAM UI =====
+  function updateReminderSchedule() {
+    const powloka = document.getElementById('m-powloka').value;
+    const dateVal = document.getElementById('m-data').value;
+    const container = document.getElementById('reminder-schedule');
+    const schedule = SCHEDULES[powloka] || [];
+
+    if (!schedule.length || !dateVal) {
+      container.innerHTML = '<div class="no-schedule">Wybierz typ powłoki i datę serwisu, aby zobaczyć harmonogram.</div>';
+      return;
+    }
+
+    const now = new Date();
+    let nextFound = false;
+    const items = schedule.map(function(step) {
+      const d = stepDate(dateVal, step);
+      const isPast = d < now;
+      const isFinal = !!step.final;
+      const isFree = !!step.free;
+      let isNext = false;
+      if (!isPast && !nextFound) { isNext = true; nextFound = true; }
+
+      let cls = 'schedule-item';
+      if (isPast) cls += ' past';
+      else if (isFree) cls += ' free-wash';
+      else if (isFinal) cls += ' final-step';
+      else if (isNext) cls += ' next';
+
+      let badge = '';
+      if (isPast) badge = '<span class="sched-badge sched-badge-done">✓ minęło</span>';
+      else if (isFree) badge = '<span class="sched-badge" style="background:rgba(76,175,125,0.15);color:#4caf7d;">🎁 gratis</span>';
+      else if (isNext) badge = '<span class="sched-badge sched-badge-next">najbliższe</span>';
+      else if (isFinal) badge = '<span class="sched-badge sched-badge-final">finalne</span>';
+
+      return '<div class="' + cls + '">' +
+        '<div class="schedule-dot"></div>' +
+        '<div class="schedule-date">' + d.toLocaleDateString('pl-PL') + '</div>' +
+        '<div class="schedule-label">' + step.label + '</div>' +
+        badge + '</div>';
+    });
+
+    container.innerHTML = '<div class="schedule-list">' + items.join('') + '</div>';
+  }
+
+  document.getElementById('m-data').addEventListener('change', updateReminderSchedule);
+  document.getElementById('m-powloka').addEventListener('change', updateReminderSchedule);
+
+  // ===== MODAL KLIENTA =====
+  function openClient(id) {
+    const c = clients.find(function(x) { return x.id === id; });
+    if (!c) return;
+    editingId = id;
+
+    document.getElementById('modal-title').textContent = c.name.toUpperCase();
+    document.getElementById('m-name').textContent = c.name;
+    document.getElementById('m-tel').textContent = c.tel;
+    document.getElementById('m-email').textContent = c.email || '—';
+    document.getElementById('m-car').textContent = c.car;
+    document.getElementById('m-usluga').value = c.usluga || 'inne';
+    document.getElementById('m-data').value = c.dataSerwisu || c.dataAdded;
+    document.getElementById('m-uwagi').value = c.uwagi || '';
+    document.getElementById('m-powloka').value = c.powloka || 'brak';
+    document.getElementById('wa-link').href = 'https://wa.me/' + c.tel.replace(/\D/g, '');
+    updateReminderSchedule();
+
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function saveClient() {
+    if (!editingId) return;
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c) return;
+    c.usluga = document.getElementById('m-usluga').value;
+    c.dataSerwisu = document.getElementById('m-data').value;
+    c.uwagi = document.getElementById('m-uwagi').value;
+    c.powloka = document.getElementById('m-powloka').value;
+    saveClients();
+    updateStats();
+    renderTable();
+    closeModalDirect();
+  }
+
+  function deleteClient() {
+    if (!editingId) return;
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!confirm('Usunąć klienta ' + c.name + '? Tej operacji nie można cofnąć.')) return;
+    clients = clients.filter(function(x) { return x.id !== editingId; });
+    saveClients();
+    updateStats();
+    renderTable();
+    closeModalDirect();
+  }
+
+  function closeModal(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModalDirect();
+  }
+  function closeModalDirect() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    editingId = null;
+  }
+
+  // ===== UMÓW WIZYTĘ =====
+  function bookVisitWhatsApp() {
+    if (!editingId) { alert('Błąd: brak danych klienta'); return; }
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c) return;
+    const tel = c.tel.replace(/\s+/g, '').replace(/^48/, '').replace(/^0/, '');
+    const msg = `Cześć ${c.name}! Chciałbym umówić się na wizytę w Hiline. Kiedy masz czas?`;
+    const url = `https://wa.me/48${tel}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+  }
+
+  // ===== MODAL DODAJ =====
+  function openAddModal() {
+    document.getElementById('add-modal-overlay').classList.add('open');
+  }
+  function closeAddModal(e) {
+    if (e.target === document.getElementById('add-modal-overlay')) closeAddModalDirect();
+  }
+  function closeAddModalDirect() {
+    document.getElementById('add-modal-overlay').classList.remove('open');
+    ['a-name','a-tel','a-email','a-car','a-uwagi'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (id === 'a-tel') el.value = '+48 ';
+      else el.value = '';
+    });
+  }
+
+  function addClientManual() {
+    const name = document.getElementById('a-name').value.trim();
+    const tel = document.getElementById('a-tel').value.trim();
+    if (!name || !tel) { alert('Imię i Telefon są wymagane'); return; }
+    const email = document.getElementById('a-email').value.trim();
+    const car = document.getElementById('a-car').value.trim() || '—';
+    const usluga = document.getElementById('a-usluga').value;
+    const serviceType = document.getElementById('a-powloka-type').value;
+    const uwagi = document.getElementById('a-uwagi').value.trim();
+
+    const client = {
+      id: generateId(),
+      name,
+      tel,
+      email,
+      car,
+      usluga,
+      uwagi,
+      powloka: serviceType || 'brak',
+      dataAdded: new Date().toISOString().split('T')[0],
+      dataSerwisu: new Date().toISOString().split('T')[0],
+    };
+
+    // Dodaj do lokalnej bazy
+    clients.unshift(client);
+    saveClients();
+    updateStats();
+    renderTable();
+
+    // Wyślij do MailerLite API (jeśli email, telefon i service type)
+    if (email && tel && serviceType) {
+      subscribeToMailerLite(name, email, tel, car, usluga, serviceType);
+    } else if (email && serviceType) {
+      // Fallback jeśli brak telefonu
+      subscribeToMailerLite(name, email, tel, car, usluga, serviceType);
+    }
+
+    closeAddModalDirect();
+  }
+
+  // ===== MAILERLITE SUBSCRIBE =====
+  function subscribeToMailerLite(name, email, tel, car, usluga, serviceType) {
+    const payload = {
+      name: name || '',
+      email: email || '',
+      tel: tel || '',
+      car: car || '',
+      usluga: usluga || '',
+      service_type: serviceType || 'promocje',
+      dataSerwisu: new Date().toISOString().split('T')[0]
+    };
+
+    fetch('/.netlify/functions/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        console.log('✓ Dodano do MailerLite (ID: ' + data.id + ')');
+        console.log('✓ Dane zsynchronizowane: ' + email);
+      } else {
+        console.error('✗ Błąd MailerLite:', data.error);
+      }
+    })
+    .catch(err => console.error('✗ Błąd wysyłki do MailerLite:', err));
+  }
+
+  // ===== EKSPORT CSV =====
+  function exportCSV() {
+    if (clients.length === 0) { alert('Brak klientów do eksportu.'); return; }
+
+    const uslugaLabel = { ceramika: 'Powłoka ceramiczna', folia: 'Folia PPF', mycie: 'Mycie detailingowe', polerowanie: 'Polerowanie', inne: 'Inne' };
+    const powlokaLabel = { brak: 'Brak', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', ppf: 'Folia PPF' };
+
+    const headers = ['Imię i Nazwisko', 'Telefon', 'Email', 'Pojazd', 'Usługa', 'Typ powłoki', 'Data serwisu', 'Następne przypomnienie', 'Uwagi'];
+
+    const rows = clients.map(function(c) {
+      const rd = reminderDate(c);
+      const rdStr = rd ? rd.toLocaleDateString('pl-PL') : '';
+      return [
+        c.name, c.tel, c.email || '', c.car,
+        uslugaLabel[c.usluga] || c.usluga,
+        powlokaLabel[c.powloka || 'brak'] || c.powloka,
+        c.dataSerwisu || c.dataAdded,
+        rdStr,
+        (c.uwagi || '').replace(/\n/g, ' ')
+      ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
+    });
+
+    const bom = '﻿';
+    const csv = bom + [headers.map(function(h) { return '"' + h + '"'; }).join(';')].concat(rows).join('\r\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = 'hiline-klienci-' + date + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ===== START =====
+  checkAuth();
+</script>
+</body>
+</html>
