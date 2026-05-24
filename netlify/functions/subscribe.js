@@ -1,5 +1,11 @@
-const TOKEN = process.env.MAILERLITE_TOKEN || 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI0IiwianRpIjoiYzE0NjQyMTc0OWNkMmU4Zjk4ZGFkMDYzOTkzYWU3NTYxMTFmODI1Yjc2ZTA4NWFiNmQ5MjYzZTE4NzA0MTdlNWJjOTQzMmUzMDA5OGVlZjUiLCJpYXQiOjE3Nzk2MDc0NTguNDIzMzMxLCJuYmYiOjE3Nzk2MDc0NTguNDIzMzM2LCJleHAiOjQ5MzUyODEwNTguNDE0OTUzLCJzdWIiOiIyMzUzMjM3Iiwic2NvcGVzIjpbXX0.gN1wBQed8W2HWO_vnUI2ArS01zt7DHsud5ye93bDFHVpkdUvB1SnNcu_Nx53lncmaFh66Mm0ymyex4AX8CAorUNAyyCZLPUA0e-B1npWav8KwonMYKbnaL1SaCXzXy5TisLr6vAPOUuehcy1lL5k0AYtSYsWZCU7xzGfQc44GlJHiVHQ2KnjGvTwAANo-RspSBzTHtaoC5UW6LiMt2HfqxJ36y7JDaZgX55PYzBqGwMKKioGEu9sU_Yxafyn_pzVP16MeaagAXmt0W93GBQZzsJj4bq3ElIIM8ON_ce4Ca5Sg-Ujn3Yi6UEocByZ_E44vGi_MM5xA0YTE421EbOPYq1ZKPE37Mad0AAmdusHUwXgxOyoud92tV0OMeWtvm9kihqpag8_b_NXolxevoU8is6EMSwiDNTYqhB4BUwjcIG6G0qd2OHteoD8PmFgY-DahzNNxErxNi62vr-j9LYK2uGdvD1-UPFkrhBCVLfHqD5FTSlX-wxXswWOZomKIPUgdt8rCk0Ff-oO_IO9YX5AWrzH7kWnY2yNrYfZHgUj16IByKh_wzKSBJTw5RQbSc-oEjeI_v-rr9dW7CUGToT7UW5zVT5kIO7eX7aVOOy0DC0NR-temQWL7iNZraSm-SQYlbEVA6QyCqTmGRE4QSLLZOBdrsu3WcZNFq8TNX5dm6M';
+// Token MailerLite — wymagana zmienna srodowiskowa w Netlify (Site settings -> Environment variables)
+// NIE wstawiac tokena bezposrednio w kodzie — kod jest publiczny na GitHub.
+const TOKEN = process.env.MAILERLITE_TOKEN;
 const API = 'https://connect.mailerlite.com/api';
+
+if (!TOKEN) {
+  console.error('Brak MAILERLITE_TOKEN w env. Ustaw zmienna w Netlify: Site settings -> Environment variables');
+}
 
 // Mapowanie service_type → group IDs w MailerLite
 const SERVICE_GROUPS = {
