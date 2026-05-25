@@ -575,25 +575,33 @@
   <div class="panel-header">
     <h2>KLIENCI</h2>
     <div style="display:flex;gap:10px;align-items:center">
+      <button class="btn-csv" onclick="document.getElementById('csv-import-input').click()" title="Wgraj plik CSV z klientami">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Importuj CSV
+      </button>
+      <input type="file" id="csv-import-input" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)">
       <button class="btn-csv" onclick="exportCSV()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Eksportuj CSV
       </button>
+      <button class="btn-csv" onclick="backupJSON()" title="Pełny backup bazy do pliku .json (z historią wizyt)">💾 Backup</button>
+      <input type="file" id="json-restore-input" accept=".json,application/json" style="display:none" onchange="restoreJSON(event)">
+      <button class="btn-csv" onclick="document.getElementById('json-restore-input').click()" title="Wczytaj backup .json">📥 Wczytaj backup</button>
       <button class="btn-add" onclick="openAddModal()">+ Dodaj klienta</button>
     </div>
   </div>
 
   <div class="stats-row">
-    <div class="stat-card">
+    <div class="stat-card" style="cursor:pointer" onclick="openRemindersModal('all')" title="Pokaż wszystkich">
       <div class="stat-label">Wszyscy klienci</div>
       <div class="stat-value" id="stat-total">0</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Przypomnień w tym miesiącu</div>
+    <div class="stat-card" style="cursor:pointer" onclick="openRemindersModal('soon')" title="Lista przypomnień w tym miesiącu">
+      <div class="stat-label">Przypomnień w tym miesiącu ↗</div>
       <div class="stat-value" id="stat-reminders" style="color:#ff9f43">0</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">Przeterminowane</div>
+    <div class="stat-card" style="cursor:pointer" onclick="openRemindersModal('overdue')" title="Lista przeterminowanych">
+      <div class="stat-label">Przeterminowane ↗</div>
       <div class="stat-value" id="stat-overdue" style="color:var(--danger)">0</div>
     </div>
   </div>
@@ -690,9 +698,37 @@
     </div>
 
     <div class="modal-section">
+      <div class="modal-section-title">Historia wizyt</div>
+      <div id="historia-lista" style="margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+        <div class="form-group" style="flex:1;min-width:140px;margin:0">
+          <label>Data wizyty</label>
+          <input type="date" id="h-data">
+        </div>
+        <div class="form-group" style="flex:2;min-width:200px;margin:0">
+          <label>Opis usługi</label>
+          <input type="text" id="h-opis" placeholder="np. Mycie + wosk, korekta lakieru">
+        </div>
+        <button class="btn-sm btn-gold" onclick="addHistoria()" style="height:42px">+ Dodaj wizytę</button>
+      </div>
+    </div>
+
+    <div class="modal-section">
       <div class="modal-section-title">Kontakt przez WhatsApp</div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:10px">
-        Wyślij klientowi zdjęcia po wykonanej usłudze bezpośrednio przez WhatsApp
+        Wybierz szablon — wiadomość zostanie wstawiona automatycznie po otwarciu WhatsApp
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+        <select id="wa-template" onchange="updateWhatsAppLink()" style="flex:1;min-width:200px;padding:9px 12px;background:var(--black);border:1px solid var(--border);border-radius:6px;color:var(--white);font-family:inherit">
+          <option value="default">— Domyślna (zdjęcia po usłudze)</option>
+          <option value="reminder">🔔 Przypomnienie o serwisie</option>
+          <option value="thanks">🙏 Podziękowanie po wizycie + prośba o opinię</option>
+          <option value="promo_winter">❄️ Oferta sezonowa (zima)</option>
+          <option value="promo_summer">☀️ Oferta sezonowa (lato)</option>
+          <option value="free_wash">🎁 Darmowe mycie sprawdzające</option>
+          <option value="ceramic_offer">💎 Propozycja powłoki ceramicznej</option>
+          <option value="custom">✍️ Pusta — napiszę własną</option>
+        </select>
       </div>
       <a id="wa-link" href="#" target="_blank" class="wa-btn" style="font-size:14px;padding:10px 16px">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
@@ -703,8 +739,23 @@
     <div class="modal-actions">
       <button class="btn-sm btn-gold" onclick="saveClient()">💾 Zapisz</button>
       <button class="btn-sm btn-success" onclick="bookVisitWhatsApp()">📅 Umów wizytę</button>
+      <button class="btn-sm btn-outline" onclick="printClientCard()">🖨 Drukuj kartę</button>
       <button class="btn-sm btn-outline" onclick="closeModalDirect()">Zamknij</button>
       <button class="btn-sm btn-danger" onclick="deleteClient()">🗑 Usuń klienta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LISTA PRZYPOMNIEŃ -->
+<div class="add-modal-overlay" id="reminders-modal-overlay" onclick="closeRemindersModal(event)">
+  <div class="modal" style="max-width:700px">
+    <div class="modal-header">
+      <h3 id="reminders-title">PRZYPOMNIENIA</h3>
+      <button class="modal-close" onclick="closeRemindersModalDirect()">✕</button>
+    </div>
+    <div id="reminders-list" style="margin-top:10px"></div>
+    <div class="modal-actions">
+      <button class="btn-sm btn-outline" onclick="closeRemindersModalDirect()">Zamknij</button>
     </div>
   </div>
 </div>
@@ -1052,9 +1103,61 @@
     document.getElementById('m-uwagi').value = c.uwagi || '';
     document.getElementById('m-powloka').value = c.powloka || 'brak';
     document.getElementById('wa-link').href = 'https://wa.me/' + c.tel.replace(/\D/g, '');
+    // Reset szablonu WhatsApp do domyślnego
+    var waTpl = document.getElementById('wa-template');
+    if (waTpl) { waTpl.value = 'default'; updateWhatsAppLink(); }
+    document.getElementById('h-data').value = new Date().toISOString().split('T')[0];
+    document.getElementById('h-opis').value = '';
+    renderHistoria();
     updateReminderSchedule();
 
     document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  // ===== HISTORIA WIZYT =====
+  function renderHistoria() {
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c) return;
+    const lista = document.getElementById('historia-lista');
+    if (!c.historia) c.historia = [];
+
+    if (c.historia.length === 0) {
+      lista.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:8px 0">Brak zapisanych wizyt. Pierwsza wizyta to dodanie klienta — kolejne dopisz poniżej.</div>';
+      return;
+    }
+
+    // Sortuj malejąco — najnowsze na górze
+    const sorted = c.historia.slice().sort(function(a, b) { return b.data.localeCompare(a.data); });
+    lista.innerHTML = sorted.map(function(h, idx) {
+      const dateFmt = new Date(h.data).toLocaleDateString('pl-PL');
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--black);border:1px solid var(--border);border-radius:8px;margin-bottom:6px">' +
+        '<div><strong style="color:var(--red)">' + dateFmt + '</strong> — <span>' + (h.opis || '—') + '</span></div>' +
+        '<button class="btn-sm btn-danger" onclick="removeHistoria(\'' + h.id + '\')" style="padding:4px 10px;font-size:11px">Usuń</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function addHistoria() {
+    if (!editingId) return;
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c) return;
+    const data = document.getElementById('h-data').value;
+    const opis = document.getElementById('h-opis').value.trim();
+    if (!data || !opis) { alert('Data i opis wizyty są wymagane'); return; }
+    if (!c.historia) c.historia = [];
+    c.historia.push({ id: generateId(), data: data, opis: opis });
+    saveClients();
+    document.getElementById('h-opis').value = '';
+    renderHistoria();
+  }
+
+  function removeHistoria(hid) {
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c || !c.historia) return;
+    if (!confirm('Usunąć tę wizytę z historii?')) return;
+    c.historia = c.historia.filter(function(h) { return h.id !== hid; });
+    saveClients();
+    renderHistoria();
   }
 
   function saveClient() {
@@ -1117,6 +1220,15 @@
     });
   }
 
+  // Mapowanie MailerLite service_type → klucz lokalnego harmonogramu
+  const SERVICE_TYPE_TO_SCHEDULE = {
+    'powloka_3letnia': 'ceramika3',
+    'powloka_5letnia': 'ceramika5',
+    'folia_ppf':       'ppf',
+    'promocje':        'brak',
+    '':                'brak'
+  };
+
   function addClientManual() {
     const name = document.getElementById('a-name').value.trim();
     const tel = document.getElementById('a-tel').value.trim();
@@ -1126,6 +1238,10 @@
     const usluga = document.getElementById('a-usluga').value;
     const serviceType = document.getElementById('a-powloka-type').value;
     const uwagi = document.getElementById('a-uwagi').value.trim();
+    // FIX: mapuj service_type z dropdownu na klucz harmonogramu (SCHEDULES)
+    const powlokaKey = SERVICE_TYPE_TO_SCHEDULE[serviceType] !== undefined
+      ? SERVICE_TYPE_TO_SCHEDULE[serviceType]
+      : 'brak';
 
     const client = {
       id: generateId(),
@@ -1135,22 +1251,19 @@
       car,
       usluga,
       uwagi,
-      powloka: serviceType || 'brak',
+      powloka: powlokaKey,
+      serviceType: serviceType,
       dataAdded: new Date().toISOString().split('T')[0],
       dataSerwisu: new Date().toISOString().split('T')[0],
+      historia: []
     };
 
-    // Dodaj do lokalnej bazy
     clients.unshift(client);
     saveClients();
     updateStats();
     renderTable();
 
-    // Wyślij do MailerLite API (jeśli email, telefon i service type)
-    if (email && tel && serviceType) {
-      subscribeToMailerLite(name, email, tel, car, usluga, serviceType);
-    } else if (email && serviceType) {
-      // Fallback jeśli brak telefonu
+    if (email && serviceType) {
       subscribeToMailerLite(name, email, tel, car, usluga, serviceType);
     }
 
@@ -1168,49 +1281,48 @@
       service_type: serviceType || 'promocje',
       dataSerwisu: new Date().toISOString().split('T')[0]
     };
-
     fetch('/.netlify/functions/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data && data.success) {
         console.log('✓ Dodano do MailerLite (ID: ' + data.id + ')');
-        console.log('✓ Dane zsynchronizowane: ' + email);
       } else {
-        console.error('✗ Błąd MailerLite:', data.error);
+        console.error('✗ Błąd MailerLite:', data && data.error);
       }
     })
-    .catch(err => console.error('✗ Błąd wysyłki do MailerLite:', err));
+    .catch(function(err) { console.error('✗ Błąd wysyłki do MailerLite:', err); });
   }
 
   // ===== EKSPORT CSV =====
   function exportCSV() {
     if (clients.length === 0) { alert('Brak klientów do eksportu.'); return; }
 
-    const uslugaLabel = { ceramika: 'Powłoka ceramiczna', folia: 'Folia PPF', mycie: 'Mycie detailingowe', polerowanie: 'Polerowanie', inne: 'Inne' };
-    const powlokaLabel = { brak: 'Brak', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', ppf: 'Folia PPF' };
+    const uslugaLabel = { ceramika: 'Powłoka ceramiczna', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', folia: 'Folia PPF', ppf: 'Folia PPF', mycie: 'Mycie detailingowe', polerowanie: 'Polerowanie', zmiana_koloru: 'Zmiana koloru', inne: 'Inne' };
+    const powlokaLabel = { brak: 'Brak', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', ppf: 'Folia PPF', mycie: 'Mycie', zmiana_koloru: 'Zmiana koloru' };
 
-    const headers = ['Imię i Nazwisko', 'Telefon', 'Email', 'Pojazd', 'Usługa', 'Typ powłoki', 'Data serwisu', 'Następne przypomnienie', 'Uwagi'];
+    const headers = ['Imię i Nazwisko', 'Telefon', 'Email', 'Pojazd', 'Usługa', 'Typ powłoki', 'Data serwisu', 'Następne przypomnienie', 'Liczba wizyt', 'Uwagi'];
 
     const rows = clients.map(function(c) {
       const rd = reminderDate(c);
       const rdStr = rd ? rd.toLocaleDateString('pl-PL') : '';
+      const liczbaWizyt = (c.historia ? c.historia.length : 0) + 1;
       return [
         c.name, c.tel, c.email || '', c.car,
         uslugaLabel[c.usluga] || c.usluga,
         powlokaLabel[c.powloka || 'brak'] || c.powloka,
         c.dataSerwisu || c.dataAdded,
         rdStr,
+        liczbaWizyt,
         (c.uwagi || '').replace(/\n/g, ' ')
       ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(';');
     });
 
     const bom = '﻿';
     const csv = bom + [headers.map(function(h) { return '"' + h + '"'; }).join(';')].concat(rows).join('\r\n');
-
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1219,6 +1331,339 @@
     a.download = 'hiline-klienci-' + date + '.csv';
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // ===== MODAL LISTY PRZYPOMNIEŃ =====
+  function openRemindersModal(mode) {
+    const now = new Date();
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const titleMap = { all: 'WSZYSCY KLIENCI', soon: 'PRZYPOMNIENIA W TYM MIESIĄCU', overdue: 'PRZETERMINOWANE PRZYPOMNIENIA' };
+    document.getElementById('reminders-title').textContent = titleMap[mode] || 'PRZYPOMNIENIA';
+    const items = clients.map(function(c) {
+      const rd = reminderDate(c);
+      return { client: c, rd: rd, diff: rd ? Math.round((rd - now) / 86400000) : null };
+    }).filter(function(it) {
+      if (!it.rd) return mode === 'all';
+      if (mode === 'all') return true;
+      if (mode === 'soon') return it.diff >= 0 && it.rd <= endOfMonth;
+      if (mode === 'overdue') return it.diff < 0;
+      return false;
+    }).sort(function(a, b) {
+      if (!a.rd) return 1; if (!b.rd) return -1;
+      return a.rd - b.rd;
+    });
+    const list = document.getElementById('reminders-list');
+    if (items.length === 0) {
+      list.innerHTML = '<div style="text-align:center;padding:32px 16px;color:var(--muted)">Brak klientów do pokazania.</div>';
+    } else {
+      list.innerHTML = items.map(function(it) {
+        const c = it.client;
+        const dateStr = it.rd ? it.rd.toLocaleDateString('pl-PL') : '—';
+        let statusCls = '', statusLabel = '';
+        if (it.diff === null) { statusLabel = 'Brak harmonogramu'; }
+        else if (it.diff < 0)  { statusLabel = '⚠ przeterm. (' + Math.abs(it.diff) + ' dni)'; statusCls = 'overdue'; }
+        else if (it.diff === 0){ statusLabel = '🔔 DZIŚ!'; statusCls = 'soon'; }
+        else if (it.diff <= 30){ statusLabel = '🔔 za ' + it.diff + ' dni'; statusCls = 'soon'; }
+        else                   { statusLabel = 'za ' + it.diff + ' dni'; }
+        const tel = (c.tel || '').replace(/\s+/g, '').replace(/^48/, '').replace(/^0/, '');
+        const msg = encodeURIComponent('Cześć ' + c.name + '! Tu Hiline. Wkrótce zalecany serwis dla Twojego ' + (c.car || 'auta') + '. Kiedy masz czas na wizytę?');
+        const waUrl = 'https://wa.me/48' + tel + '?text=' + msg;
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--black);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;gap:12px;flex-wrap:wrap">' +
+          '<div style="flex:1;min-width:200px;cursor:pointer" onclick="closeRemindersModalDirect();openClient(\'' + c.id + '\')">' +
+            '<div style="font-weight:600">' + c.name + '</div>' +
+            '<div style="font-size:12px;color:var(--muted)">' + (c.car || '—') + ' • ' + (c.tel || '') + '</div>' +
+          '</div>' +
+          '<div style="text-align:right;min-width:140px">' +
+            '<div style="font-weight:600">' + dateStr + '</div>' +
+            '<div class="reminder-tag ' + statusCls + '" style="font-size:11px">' + statusLabel + '</div>' +
+          '</div>' +
+          '<a class="wa-btn" href="' + waUrl + '" target="_blank" onclick="event.stopPropagation()" style="padding:6px 12px;font-size:12px">WhatsApp</a>' +
+        '</div>';
+      }).join('');
+    }
+    document.getElementById('reminders-modal-overlay').classList.add('open');
+  }
+  function closeRemindersModal(e) {
+    if (e.target === document.getElementById('reminders-modal-overlay')) closeRemindersModalDirect();
+  }
+  function closeRemindersModalDirect() {
+    document.getElementById('reminders-modal-overlay').classList.remove('open');
+  }
+
+  // ===== IMPORT CSV =====
+  function importCSV(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const text = e.target.result.replace(/^﻿/, '');
+        const firstLine = text.split(/\r?\n/)[0];
+        const sep = (firstLine.split(';').length > firstLine.split(',').length) ? ';' : ',';
+        const lines = text.split(/\r?\n/).filter(function(l) { return l.trim().length > 0; });
+        if (lines.length < 2) { alert('Plik CSV jest pusty lub uszkodzony.'); return; }
+        function parseLine(line) {
+          const out = []; let cur = ''; let inQ = false;
+          for (let i = 0; i < line.length; i++) {
+            const ch = line[i];
+            if (ch === '"' && line[i+1] === '"' && inQ) { cur += '"'; i++; continue; }
+            if (ch === '"') { inQ = !inQ; continue; }
+            if (ch === sep && !inQ) { out.push(cur); cur = ''; continue; }
+            cur += ch;
+          }
+          out.push(cur);
+          return out;
+        }
+        const headers = parseLine(lines[0]).map(function(h) { return h.trim().toLowerCase(); });
+        function findIdx(names) {
+          for (let i = 0; i < headers.length; i++) {
+            for (const n of names) { if (headers[i].includes(n)) return i; }
+          }
+          return -1;
+        }
+        const idxName  = findIdx(['imię','imie','nazwisko','name','klient']);
+        const idxTel   = findIdx(['telefon','tel','phone']);
+        const idxEmail = findIdx(['email','e-mail','mail']);
+        const idxCar   = findIdx(['pojazd','auto','car','vehicle','marka']);
+        const idxUsl   = findIdx(['usługa','usluga','service']);
+        const idxData  = findIdx(['data serwisu','data','date']);
+        const idxUwagi = findIdx(['uwagi','notes','komentarz']);
+        if (idxName === -1 || idxTel === -1) {
+          alert('CSV musi mieć kolumny "Imię i Nazwisko" oraz "Telefon".\nZnalezione: ' + headers.join(', '));
+          return;
+        }
+        let added = 0, skipped = 0;
+        for (let i = 1; i < lines.length; i++) {
+          const cols = parseLine(lines[i]);
+          const name = (cols[idxName] || '').trim();
+          const tel  = (cols[idxTel]  || '').trim();
+          if (!name || !tel) { skipped++; continue; }
+          const telDigits = tel.replace(/\D/g, '');
+          if (clients.some(function(c) { return c.tel.replace(/\D/g,'') === telDigits; })) { skipped++; continue; }
+          const usluga = (idxUsl >= 0 ? (cols[idxUsl] || '').toLowerCase() : 'inne');
+          let uslugaKey = 'inne';
+          if (usluga.includes('ceramik')) uslugaKey = 'ceramika';
+          else if (usluga.includes('ppf') || usluga.includes('folia')) uslugaKey = 'folia';
+          else if (usluga.includes('mycie') || usluga.includes('detail')) uslugaKey = 'mycie';
+          else if (usluga.includes('poler')) uslugaKey = 'polerowanie';
+          const today = new Date().toISOString().split('T')[0];
+          const dataS = (idxData >= 0 ? (cols[idxData] || '').trim() : '') || today;
+          clients.unshift({
+            id: generateId(), name: name, tel: tel,
+            email: idxEmail >= 0 ? (cols[idxEmail] || '').trim() : '',
+            car:   idxCar   >= 0 ? (cols[idxCar]   || '').trim() : '—',
+            usluga: uslugaKey,
+            uwagi: idxUwagi >= 0 ? (cols[idxUwagi] || '').trim() : '',
+            powloka: 'brak', serviceType: '',
+            dataAdded: today, dataSerwisu: dataS, historia: []
+          });
+          added++;
+        }
+        saveClients();
+        updateStats();
+        renderTable();
+        alert('Import zakończony!\n✓ Dodano: ' + added + '\n⊘ Pominięto: ' + skipped);
+      } catch (err) {
+        console.error('Import CSV error:', err);
+        alert('Błąd importu CSV: ' + err.message);
+      }
+      document.getElementById('csv-import-input').value = '';
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  // ===== BACKUP / RESTORE JSON =====
+  function backupJSON() {
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      clientCount: clients.length,
+      clients: clients
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = 'hiline-backup-' + date + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function restoreJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!confirm('UWAGA: Wczytanie backupu nadpisze obecną bazę klientów (' + clients.length + ' osób).\nNa pewno chcesz kontynuować?\n\nTip: zrób najpierw Backup obecnej bazy.')) {
+      document.getElementById('json-restore-input').value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        const incoming = Array.isArray(data) ? data : (data.clients || []);
+        if (!Array.isArray(incoming) || incoming.length === 0) {
+          alert('Plik nie zawiera klientów lub format jest niepoprawny.');
+          return;
+        }
+        // Walidacja minimalnych pól
+        const valid = incoming.filter(function(c) { return c && c.id && c.name && c.tel; });
+        if (valid.length === 0) { alert('Plik nie zawiera prawidłowych rekordów klientów.'); return; }
+        clients = valid.map(function(c) {
+          // Uzupełnij brakujące pola
+          if (!c.historia) c.historia = [];
+          if (!c.dataAdded) c.dataAdded = new Date().toISOString().split('T')[0];
+          if (!c.dataSerwisu) c.dataSerwisu = c.dataAdded;
+          if (!c.powloka) c.powloka = 'brak';
+          if (!c.usluga) c.usluga = 'inne';
+          return c;
+        });
+        saveClients();
+        updateStats();
+        renderTable();
+        alert('✓ Backup wczytany!\nLiczba klientów: ' + clients.length);
+      } catch (err) {
+        console.error('Restore error:', err);
+        alert('Błąd wczytywania backupu: ' + err.message);
+      }
+      document.getElementById('json-restore-input').value = '';
+    };
+    reader.readAsText(file, 'utf-8');
+  }
+
+  // ===== KARTA KLIENTA DO DRUKU =====
+  function printClientCard() {
+    if (!editingId) return;
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c) return;
+
+    const uslugaLabel = { ceramika: 'Powłoka ceramiczna', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', folia: 'Folia PPF', ppf: 'Folia PPF', mycie: 'Mycie detailingowe', polerowanie: 'Polerowanie', zmiana_koloru: 'Zmiana koloru', inne: 'Inne' };
+    const powlokaLabel = { brak: 'Brak harmonogramu', ceramika3: 'Ceramika 3-letnia', ceramika5: 'Ceramika 5-letnia', ppf: 'Folia PPF', mycie: 'Mycie', zmiana_koloru: 'Zmiana koloru' };
+
+    const rd = reminderDate(c);
+    const rdStr = rd ? rd.toLocaleDateString('pl-PL') : '—';
+
+    // Historia HTML
+    const histArr = (c.historia || []).slice().sort(function(a,b){ return b.data.localeCompare(a.data); });
+    const histHTML = histArr.length === 0
+      ? '<tr><td colspan="2" style="color:#888;text-align:center;padding:14px">Brak dodatkowych wizyt poza pierwszą</td></tr>'
+      : histArr.map(function(h){
+          return '<tr><td style="padding:8px 14px;border-bottom:1px solid #2a2a2a;font-weight:600;color:#BA2025;width:140px">' + new Date(h.data).toLocaleDateString('pl-PL') + '</td><td style="padding:8px 14px;border-bottom:1px solid #2a2a2a">' + (h.opis || '—') + '</td></tr>';
+        }).join('');
+
+    // Schedule HTML
+    const schedule = SCHEDULES[c.powloka || 'brak'] || [];
+    const base = c.dataSerwisu || c.dataAdded;
+    const now = new Date();
+    const schedHTML = schedule.length === 0
+      ? '<tr><td colspan="2" style="color:#888;text-align:center;padding:14px">Brak harmonogramu</td></tr>'
+      : schedule.map(function(step){
+          const d = stepDate(base, step);
+          const isPast = d < now;
+          const color = isPast ? '#666' : (step.final ? '#BA2025' : '#0a0a0a');
+          const mark = isPast ? '✓' : '○';
+          return '<tr><td style="padding:6px 14px;border-bottom:1px solid #eee;width:140px;color:' + color + ';font-weight:600">' + mark + ' ' + d.toLocaleDateString('pl-PL') + '</td><td style="padding:6px 14px;border-bottom:1px solid #eee;color:' + color + '">' + step.label + '</td></tr>';
+        }).join('');
+
+    const html = '<!DOCTYPE html><html lang="pl"><head><meta charset="UTF-8">' +
+      '<title>Karta klienta — ' + c.name + '</title>' +
+      '<style>' +
+      '@page { size: A4; margin: 15mm; }' +
+      'body { font-family: Arial, sans-serif; color: #0a0a0a; padding: 0; margin: 0; }' +
+      '.header { background: #0a0a0a; color: #fff; padding: 24px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid #BA2025; }' +
+      '.header .brand { font-size: 36px; font-weight: bold; letter-spacing: 4px; color: #BA2025; }' +
+      '.header .sub { font-size: 11px; letter-spacing: 2px; color: #888; }' +
+      '.header .meta { text-align: right; font-size: 11px; color: #888; }' +
+      '.section { padding: 18px 32px; }' +
+      '.section h2 { color: #BA2025; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; border-bottom: 2px solid #BA2025; padding-bottom: 6px; margin-bottom: 12px; }' +
+      '.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 24px; }' +
+      '.grid .item label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 2px; }' +
+      '.grid .item p { font-size: 15px; font-weight: 600; color: #0a0a0a; }' +
+      'table { width: 100%; border-collapse: collapse; font-size: 13px; }' +
+      '.uwagi { background: #f8f8f8; padding: 12px; border-left: 3px solid #BA2025; font-size: 13px; min-height: 40px; }' +
+      '.footer { padding: 16px 32px; background: #f8f8f8; font-size: 11px; color: #888; text-align: center; border-top: 1px solid #ddd; }' +
+      '@media print { .no-print { display: none; } }' +
+      '.print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 20px; background: #BA2025; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }' +
+      '</style></head><body>' +
+      '<button class="print-btn no-print" onclick="window.print()">🖨 Drukuj (Ctrl+P)</button>' +
+      '<div class="header">' +
+      '<div><div class="brand">HILINE</div><div class="sub">WRAP & DETAILING — KARTA KLIENTA</div></div>' +
+      '<div class="meta">Wydruk: ' + new Date().toLocaleDateString('pl-PL') + '<br>ID: ' + c.id.substring(0, 8) + '</div>' +
+      '</div>' +
+      '<div class="section">' +
+      '<h2>Dane klienta</h2>' +
+      '<div class="grid">' +
+        '<div class="item"><label>Imię i Nazwisko</label><p>' + c.name + '</p></div>' +
+        '<div class="item"><label>Telefon</label><p>' + (c.tel || '—') + '</p></div>' +
+        '<div class="item"><label>Email</label><p>' + (c.email || '—') + '</p></div>' +
+        '<div class="item"><label>Pojazd</label><p>' + (c.car || '—') + '</p></div>' +
+        '<div class="item"><label>Główna usługa</label><p>' + (uslugaLabel[c.usluga] || c.usluga) + '</p></div>' +
+        '<div class="item"><label>Typ powłoki / gwarancji</label><p>' + (powlokaLabel[c.powloka || 'brak']) + '</p></div>' +
+        '<div class="item"><label>Data serwisu</label><p>' + (c.dataSerwisu || c.dataAdded) + '</p></div>' +
+        '<div class="item"><label>Najbliższe przypomnienie</label><p style="color:#BA2025">' + rdStr + '</p></div>' +
+      '</div></div>' +
+      '<div class="section"><h2>Uwagi / Opis pracy</h2><div class="uwagi">' + (c.uwagi || '<em style="color:#888">Brak uwag</em>') + '</div></div>' +
+      '<div class="section"><h2>Historia wizyt</h2><table>' + histHTML + '</table></div>' +
+      '<div class="section"><h2>Plan przypomnień</h2><table>' + schedHTML + '</table></div>' +
+      '<div class="footer">Hiline Wrap & Detailing • Łady, Warszawa • hiline-detailing.netlify.app</div>' +
+      '</body></html>';
+
+    const w = window.open('', '_blank', 'width=900,height=1200');
+    if (!w) { alert('Wyskakujące okno zablokowane — zezwól w przeglądarce i spróbuj ponownie.'); return; }
+    w.document.write(html);
+    w.document.close();
+    // Auto-print po krótkim opóźnieniu
+    setTimeout(function() { try { w.focus(); w.print(); } catch(e){} }, 400);
+  }
+
+  // ===== SZABLONY WHATSAPP =====
+  const WA_TEMPLATES = {
+    default: function(c) { return null; }, // null = nie zmieniaj URL (zdjęcia bez tekstu)
+    reminder: function(c) {
+      return 'Cześć ' + c.name + '! Tu Hiline Wrap & Detailing. Przypominam się — według naszego harmonogramu zbliża się zalecany serwis dla Twojego ' + (c.car || 'auta') + '. Kiedy masz czas na wizytę? Pozdrawiam!';
+    },
+    thanks: function(c) {
+      return 'Cześć ' + c.name + '! Bardzo dziękujemy za wizytę w Hiline. Twój ' + (c.car || 'samochód') + ' wygląda świetnie ✨ Jeśli jesteś zadowolony/a — byłoby super gdybyś wystawił/a krótką opinię w Google. Link wyślę osobno. Dzięki!';
+    },
+    promo_winter: function(c) {
+      return 'Cześć ' + c.name + '! Sezon zimowy w pełni — sól, błoto i mróz nie sprzyjają lakierowi. W Hiline mamy promocyjny pakiet zabezpieczający na zimę dla Twojego ' + (c.car || 'auta') + '. Mam coś dla Ciebie — pisz!';
+    },
+    promo_summer: function(c) {
+      return 'Cześć ' + c.name + '! Słońce, sól nadmorska i upały to wrogowie lakieru. Mamy letni pakiet ochronny dla Twojego ' + (c.car || 'auta') + ' — powłoka + zabezpieczenie skór i wnętrza. Zainteresowany/a?';
+    },
+    free_wash: function(c) {
+      return 'Cześć ' + c.name + '! 🎁 Minęły 2 tygodnie od aplikacji — zapraszam na DARMOWE mycie sprawdzające w Hiline. Sprawdzimy stan powłoki i dopucujemy ' + (c.car || 'auto'). slice(0,80) + '. Kiedy podjedziesz?';
+    },
+    ceramic_offer: function(c) {
+      return 'Cześć ' + c.name + '! Twój ' + (c.car || 'samochód') + ' zasługuje na pełną ochronę. Mamy w Hiline ofertę na powłokę ceramiczną z 3-letnią lub 5-letnią gwarancją. Chcesz poznać szczegóły i ceny?';
+    },
+    custom: function(c) { return ''; } // pusty tekst — user wpisze sam
+  };
+
+  function buildWhatsAppUrl(c, templateKey) {
+    const tel = (c.tel || '').replace(/\s+/g, '').replace(/^48/, '').replace(/^0/, '');
+    const tmpl = WA_TEMPLATES[templateKey];
+    const text = tmpl ? tmpl(c) : null;
+    if (text === null) {
+      // Brak szablonu — link bez tekstu (klient pisze własną wiadomość, np. wysyła zdjęcia)
+      return 'https://wa.me/48' + tel;
+    }
+    return 'https://wa.me/48' + tel + '?text=' + encodeURIComponent(text);
+  }
+
+  function updateWhatsAppLink() {
+    if (!editingId) return;
+    const c = clients.find(function(x) { return x.id === editingId; });
+    if (!c) return;
+    const tmplKey = document.getElementById('wa-template').value || 'default';
+    document.getElementById('wa-link').href = buildWhatsAppUrl(c, tmplKey);
+  }
+
+  // ===== SERVICE WORKER (PWA OFFLINE) =====
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js').catch(function() {});
+    });
   }
 
   // ===== START =====
