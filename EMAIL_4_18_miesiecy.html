@@ -1,165 +1,162 @@
-<!DOCTYPE html>
-<html lang="pl">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pl">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMAIL 4 - Sprawdzenie 18-miesięczne</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-        }
-        .email-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        .header {
-            background: #000000;
-            border-bottom: 4px solid #C41E3A;
-            color: white;
-            padding: 30px 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
-            font-weight: bold;
-            color: #C41E3A;
-        }
-        .header p {
-            margin: 10px 0 0 0;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .content {
-            padding: 30px 20px;
-        }
-        .greeting {
-            font-size: 16px;
-            margin-bottom: 20px;
-            font-weight: bold;
-        }
-        .body-text {
-            font-size: 16px;
-            line-height: 1.8;
-            margin-bottom: 20px;
-            color: #555;
-        }
-        .highlight-box {
-            background-color: #f0f0f0;
-            border-left: 4px solid #C41E3A;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-        .highlight-box p {
-            margin: 0;
-            font-style: italic;
-        }
-        .cta-button {
-            display: inline-block;
-            background-color: #C41E3A;
-            color: white;
-            padding: 12px 30px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        .cta-button:hover {
-            background-color: #8B1528;
-        }
-        .signature {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-            font-size: 14px;
-            color: #777;
-        }
-        .footer {
-            background-color: #f9f9f9;
-            padding: 20px;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
+    <meta name="format-detection" content="telephone=no">
+    <title>Kontrola 18-miesięczna powłoki</title>
+    <!--[if mso]>
+    <style type="text/css">
+        body, table, td { font-family: Arial, sans-serif !important; }
+    </style>
+    <![endif]-->
+    <style type="text/css">
+        body { margin: 0; padding: 0; -webkit-text-size-adjust: 100%; background-color: #EDEDED; }
+        table { border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; }
+        img { border: 0; line-height: 100%; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; display: block; }
+        a { color: #C41E3A; text-decoration: none; }
+        .hero-overlay { background-color: rgba(10,10,10,0.55); }
+        @media only screen and (max-width: 620px) {
+            .container { width: 100% !important; }
+            .px { padding-left: 24px !important; padding-right: 24px !important; }
+            .hero-title { font-size: 26px !important; line-height: 32px !important; }
+            .h1 { font-size: 22px !important; line-height: 28px !important; }
+            .btn a { display: block !important; }
         }
     </style>
 </head>
-<body>
-    <div class="email-container">
-        <!-- HEADER -->
-        <div class="header">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXUAAAF3CAIAAADVV0yUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAACgqSURBVHhe7Z35cBVl+ra/KskC2cOShSQQAriwibjMDOCwBUEE/QnKDgqyKcou+5LgBrKKgwthCaAgq6DojIwMEEBRGanSEZEpEBRERQMBTICY73uq8vz4rDfdb/o9p9fT913XX5Zvn6dP331xzsk53f+nStgNAABgBfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-sAr4BQBgFfALAMAq4BcAgFXALwAAq4BfAABWAb8AAKwCfgEAWAX8AgCwCvgFAGAV8AsAwCrgFwCAVcAvAACrgF8AAFYBvwAArAJ+AQBYBfwCALAK+AUAYBXwCwDAKuAXAIBVwC8AAKuAXwAAVgG/AACsAn4BAFgF/AIA
-" style="max-height: 50px; margin-bottom: 10px;" alt="Hiline Wrap & Detailing">
-            <h1>🔍 Sprawdzenie 18-miesięczne</h1>
-            <p>Hiline Wrap & Detailing</p>
-        </div>
+<body style="margin:0; padding:0; background-color:#EDEDED; font-family: 'Helvetica Neue', Arial, sans-serif; color: #2C2C2C;">
+    <!-- Preheader (ukryty tekst preview w skrzynce) -->
+    <div style="display:none; font-size:1px; color:#EDEDED; line-height:1px; max-height:0; max-width:0; opacity:0; overflow:hidden;">
+        Półtora roku z powłoką — sprawdźmy jak się trzyma.
+    </div>
 
-        <!-- CONTENT -->
-        <div class="content">
-            <p class="greeting">Cześć {$name}!</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#EDEDED">
+        <tr>
+            <td align="center" style="padding: 24px 12px;">
+                <!--[if mso]>
+                <table role="presentation" align="center" width="600" cellspacing="0" cellpadding="0" border="0">
+                <tr><td>
+                <![endif]-->
+                <table role="presentation" class="container" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px; background-color:#FFFFFF; border-radius:6px; overflow:hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
 
-            <p class="body-text">
-                Minęło 1,5 roku od aplikacji powłoki w Twoim pojeździe.
+                    <!-- HERO Z LOGO -->
+                    <tr>
+                        <td align="center" valign="top" background="https://hiline-detailing.netlify.app/assets/email/hero-hiline.jpg" bgcolor="#0A0A0A"
+                            style="background-image: url('https://hiline-detailing.netlify.app/assets/email/hero-hiline.jpg'); background-size: cover; background-position: center center; background-color: #0A0A0A;">
+                            <!--[if gte mso 9]>
+                            <v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="mso-width-percent:1000; height:260px;">
+                                <v:fill type="frame" src="https://hiline-detailing.netlify.app/assets/email/hero-hiline.jpg" color="#0A0A0A" />
+                                <v:textbox inset="0,0,0,0">
+                            <![endif]-->
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                    <td align="center" valign="middle" class="hero-overlay px"
+                                        style="background-color: rgba(10,10,10,0.55); padding: 64px 32px;">
+                                        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size:12px; line-height:18px; color:#FFFFFF; opacity:0.85; margin:0 0 14px 0; text-transform:uppercase; letter-spacing:3px;">
+                                            Kontrola półroczna
+                                        </div>
+                                        <div class="hero-title" style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size:32px; line-height:38px; font-weight:700; color:#FFFFFF; letter-spacing:0.5px; margin:0;">
+                                            1,5 roku ochrony — krótka kontrola
+                                        </div>
+                                        <div style="width:48px; height:3px; background-color:#C41E3A; margin:20px auto 0 auto; line-height:3px; font-size:3px;">&nbsp;</div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!--[if gte mso 9]>
+                                </v:textbox>
+                            </v:rect>
+                            <![endif]-->
+                        </td>
+                    </tr>
+
+                    <!-- ACCENT BAR (czerwony pasek) -->
+                    <tr>
+                        <td height="4" bgcolor="#C41E3A" style="height:4px; line-height:4px; font-size:4px;">&nbsp;</td>
+                    </tr>
+
+                    <!-- CONTENT -->
+                    <tr>
+                        <td class="px" style="padding: 40px 40px 16px 40px; font-family: 'Helvetica Neue', Arial, sans-serif; color: #2C2C2C;">
+                            <p style="margin:0 0 20px 0; font-size:17px; line-height:24px; color: #2C2C2C; font-weight:600;">
+                                Cześć {$name},
+                            </p>
+                            
+            <p style="margin:0 0 18px 0; font-size:16px; line-height:26px;">
+                Powłoka w Twoim aucie pracuje już 18 miesięcy. To moment, w którym warto zrobić szybką ocenę stanu — zanim drobne mikrouszkodzenia zamienią się w widoczne ślady.
             </p>
-
-            <div class="highlight-box">
-                <p>
-                    Warto umówić się na kontrolne mycie i ocenę stanu powłoki. Dzięki temu mamy pewność, że powłoka pracuje prawidłowo i chroni lakier.
+            <p style="margin:0 0 18px 0; font-size:16px; line-height:26px;">
+                W trakcie krótkiej wizyty zrobimy detailingowe mycie, ocenimy stan powłoki w 5 kluczowych strefach (maska, dach, drzwi, zderzaki, klamki) i — jeśli będzie taka potrzeba — zaproponujemy odświeżenie hydrofobowości.
+            </p>
+            <div style="background-color:#F7F7F7; border-left:4px solid #C41E3A; padding:18px 22px; margin:20px 0; border-radius:0 4px 4px 0;">
+                <p style="margin:0; font-size:15px; line-height:24px; color:#333;">
+                    Bez zbędnej sprzedaży — jeśli powłoka trzyma się świetnie, powiemy Ci to wprost. Naszym celem jest, by Twoje auto wyglądało jak pierwszego dnia.
                 </p>
             </div>
+        
+                        </td>
+                    </tr>
 
-            <p class="body-text">
-                Zapraszamy do Hiline!
-            </p>
+                    <!-- CTA -->
+                    <tr>
+                        <td align="center" class="px" style="padding: 8px 40px 36px 40px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" class="btn">
+                                <tr>
+                                    <td align="center" bgcolor="#C41E3A" style="border-radius:4px;">
+                                        <a href="https://wa.me/48505008288" target="_blank"
+                                           style="display:inline-block; padding:16px 36px; font-family: 'Helvetica Neue', Arial, sans-serif; font-size:16px; font-weight:700; color:#FFFFFF; text-decoration:none; letter-spacing:0.5px; border-radius:4px; text-transform:uppercase;">
+                                            Umów kontrolę
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            <p style="margin:18px 0 0 0; font-size:13px; line-height:18px; color: #777777; text-align:center;">
+                                lub napisz na <a href="https://wa.me/48505008288" style="color:#C41E3A; text-decoration:none; font-weight:600;">WhatsApp</a>
+                                &nbsp;·&nbsp; tel. <a href="tel:48505008288" style="color:#C41E3A; text-decoration:none; font-weight:600;">+48 505 008 288</a>
+                            </p>
+                        </td>
+                    </tr>
 
-            <a href="tel:505008288" class="cta-button">Umów kontrolę</a>
+                    <!-- SIGNATURE -->
+                    <tr>
+                        <td class="px" style="padding: 0 40px 32px 40px; border-top:1px solid #EDEDED;">
+                            <p style="margin:24px 0 4px 0; font-size:15px; line-height:22px; color:#2C2C2C;">
+                                Dbamy o auto z głową,
+                            </p>
+                            <p style="margin:0; font-size:15px; line-height:22px; color:#0A0A0A; font-weight:700;">
+                                Zespół Hiline Wrap &amp; Detailing
+                            </p>
+                        </td>
+                    </tr>
 
-            <div class="signature">
-                <p>Do zobaczenia!<br><strong>Zespół Hiline Wrap & Detailing</strong></p>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <p>Hiline Wrap & Detailing | Łady Warszawa</p>
-            <p>📧 biuro@hiline.pl | 📞 505008288</p>
-        </div>
-    </div>
+                    <!-- FOOTER -->
+                    <tr>
+                        <td bgcolor="#0A0A0A" align="center" style="padding: 28px 24px; background-color:#0A0A0A;">
+                            <p style="margin:0 0 6px 0; font-family: 'Helvetica Neue', Arial, sans-serif; font-size:13px; line-height:18px; color:#FFFFFF; font-weight:700; letter-spacing:1px;">
+                                HILINE WRAP &amp; DETAILING
+                            </p>
+                            <p style="margin:0 0 12px 0; font-family: 'Helvetica Neue', Arial, sans-serif; font-size:12px; line-height:18px; color:#AAAAAA;">
+                                Łady k. Warszawy &nbsp;·&nbsp; Auto Detailing · Folie PPF · Powłoki Ceramiczne
+                            </p>
+                            <p style="margin:0 0 12px 0; font-family: 'Helvetica Neue', Arial, sans-serif; font-size:12px; line-height:18px; color:#AAAAAA;">
+                                <a href="mailto:biuro@hiline.pl" style="color:#FFFFFF; text-decoration:none;">biuro@hiline.pl</a>
+                                &nbsp;·&nbsp;
+                                <a href="tel:48505008288" style="color:#FFFFFF; text-decoration:none;">+48 505 008 288</a>
+                            </p>
+                            <p style="margin:0; font-family: 'Helvetica Neue', Arial, sans-serif; font-size:11px; line-height:16px; color:#777777;">
+                                Otrzymujesz tego maila, ponieważ skorzystałeś/aś z usługi Hiline.<br>
+                                <a href="{$unsubscribe}" style="color:#999999; text-decoration:underline;">Wypisz się z listy</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                <!--[if mso]>
+                </td></tr>
+                </table>
+                <![endif]-->
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
