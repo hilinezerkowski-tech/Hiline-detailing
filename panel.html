@@ -1198,7 +1198,7 @@
     if (!editingId) { alert('Błąd: brak danych klienta'); return; }
     const c = clients.find(function(x) { return x.id === editingId; });
     if (!c) return;
-    const tel = c.tel.replace(/\s+/g, '').replace(/^48/, '').replace(/^0/, '');
+    const tel = c.tel.replace(/\s+/g, '').replace(/^\+/, '').replace(/^48/, '').replace(/^0/, '');
     const msg = `Cześć ${c.name}! Chciałbym umówić się na wizytę w Hiline. Kiedy masz czas?`;
     const url = `https://wa.me/48${tel}?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
@@ -1365,7 +1365,7 @@
         else if (it.diff === 0){ statusLabel = '🔔 DZIŚ!'; statusCls = 'soon'; }
         else if (it.diff <= 30){ statusLabel = '🔔 za ' + it.diff + ' dni'; statusCls = 'soon'; }
         else                   { statusLabel = 'za ' + it.diff + ' dni'; }
-        const tel = (c.tel || '').replace(/\s+/g, '').replace(/^48/, '').replace(/^0/, '');
+        const tel = (c.tel || '').replace(/\s+/g, '').replace(/^\+/, '').replace(/^48/, '').replace(/^0/, '');
         const msg = encodeURIComponent('Cześć ' + c.name + '! Tu Hiline. Wkrótce zalecany serwis dla Twojego ' + (c.car || 'auta') + '. Kiedy masz czas na wizytę?');
         const waUrl = 'https://wa.me/48' + tel + '?text=' + msg;
         return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--black);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;gap:12px;flex-wrap:wrap">' +
@@ -1641,7 +1641,7 @@
   };
 
   function buildWhatsAppUrl(c, templateKey) {
-    const tel = (c.tel || '').replace(/\s+/g, '').replace(/^48/, '').replace(/^0/, '');
+    const tel = (c.tel || '').replace(/\s+/g, '').replace(/^\+/, '').replace(/^48/, '').replace(/^0/, '');
     const tmpl = WA_TEMPLATES[templateKey];
     const text = tmpl ? tmpl(c) : null;
     if (text === null) {

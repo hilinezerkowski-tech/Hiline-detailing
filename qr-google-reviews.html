@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>Hiline — QR Google Reviews (do druku)</title>
+<style>
+  @page { size: A4; margin: 15mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: #f0f0f0;
+    color: #0a0a0a;
+    padding: 30px;
+  }
+  .controls {
+    max-width: 800px;
+    margin: 0 auto 30px;
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  }
+  .controls h1 { font-size: 22px; margin-bottom: 4px; color: #BA2025; }
+  .controls p { color: #555; font-size: 14px; margin-bottom: 16px; }
+  .controls label { font-size: 12px; font-weight: 600; color: #333; display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .controls input {
+    width: 100%; padding: 10px 14px; border: 1px solid #ccc; border-radius: 8px;
+    font-size: 14px; margin-bottom: 12px; font-family: inherit;
+  }
+  .controls button {
+    background: #BA2025; color: #fff; border: none; padding: 10px 20px;
+    border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+  .controls button:hover { background: #d42b31; }
+  .controls .hint {
+    background: #fffbe6; border-left: 3px solid #ffcc00;
+    padding: 10px 14px; margin-top: 14px; font-size: 13px; color: #5a4500;
+  }
+  .controls .hint code { background: #fff; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  /* KARTA DO DRUKU */
+  .card {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #0a0a0a;
+    color: #f5f5f0;
+    padding: 50px 40px;
+    border-radius: 16px;
+    text-align: center;
+    border: 2px solid #BA2025;
+  }
+  .card .brand {
+    font-family: 'Bebas Neue', Impact, sans-serif;
+    font-size: 56px; letter-spacing: 4px; color: #BA2025; line-height: 1;
+    margin-bottom: 6px;
+  }
+  .card .tag { font-size: 12px; letter-spacing: 3px; color: #888; text-transform: uppercase; margin-bottom: 36px; }
+  .card .headline { font-size: 28px; font-weight: 600; margin-bottom: 12px; }
+  .card .sub { font-size: 16px; color: #ccc; margin-bottom: 32px; line-height: 1.5; }
+  .card .qr-wrap {
+    background: #fff; padding: 20px; display: inline-block; border-radius: 12px; margin-bottom: 28px;
+  }
+  .card .qr-wrap img { display: block; }
+  .card .step {
+    background: rgba(186, 32, 37, 0.1); border: 1px solid #BA2025;
+    border-radius: 8px; padding: 14px 20px; margin: 10px auto; max-width: 420px; text-align: left;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .card .step .num {
+    background: #BA2025; color: #fff; width: 28px; height: 28px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: bold; flex-shrink: 0;
+  }
+  .card .step .txt { font-size: 14px; }
+  .card .footer {
+    margin-top: 36px; padding-top: 24px; border-top: 1px solid #2a2a2a;
+    font-size: 12px; color: #888; letter-spacing: 1px;
+  }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    .controls { display: none; }
+    .card { box-shadow: none; border: 2px solid #BA2025; }
+  }
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <h1>QR Google Reviews — Hiline</h1>
+  <p>Wpisz swój link Google Reviews → kliknij <strong>Generuj</strong> → naciśnij <strong>Ctrl+P</strong> aby wydrukować.</p>
+
+  <label>Link do wystawienia opinii Google</label>
+  <input type="text" id="review-url" placeholder="https://g.page/r/CdXyz.../review" value="">
+
+  <button onclick="generateQR()">Generuj QR</button>
+  <button onclick="window.print()" style="background:#0a0a0a;margin-left:8px">🖨 Drukuj</button>
+
+  <div class="hint">
+    💡 <strong>Jak zdobyć link Google Reviews?</strong><br>
+    1. Wejdź na <code>business.google.com</code> i zaloguj się<br>
+    2. W panelu profilu firmy kliknij <strong>"Poproś o opinie"</strong> → pojawi się skrócony link <code>g.page/r/...</code><br>
+    3. Skopiuj go i wklej powyżej
+  </div>
+</div>
+
+<div class="card" id="print-card">
+  <div class="brand">HILINE</div>
+  <div class="tag">WRAP & DETAILING</div>
+
+  <div class="headline">Twoja opinia ma znaczenie</div>
+  <div class="sub">Zeskanuj kod i napisz kilka słów o usłudze.<br>Pomóż innym znaleźć Hiline.</div>
+
+  <div class="qr-wrap" id="qr-wrap">
+    <img id="qr-img" src="" alt="QR Google Reviews" width="280" height="280">
+  </div>
+
+  <div class="step"><div class="num">1</div><div class="txt">Otwórz aparat w telefonie</div></div>
+  <div class="step"><div class="num">2</div><div class="txt">Zeskanuj kod QR powyżej</div></div>
+  <div class="step"><div class="num">3</div><div class="txt">Wystaw opinię w Google ⭐⭐⭐⭐⭐</div></div>
+
+  <div class="footer">Hiline Wrap & Detailing • Łady, Warszawa • hiline-detailing.netlify.app</div>
+</div>
+
+<script>
+  // Generuje QR przez darmowe API qr-server.com (200x200 minimum, my dajemy 600 dla ostrości na druku)
+  function generateQR() {
+    const url = document.getElementById('review-url').value.trim();
+    if (!url) { alert('Wklej najpierw link do Google Reviews'); return; }
+    if (!url.startsWith('http')) { alert('Link musi zaczynać się od http:// lub https://'); return; }
+
+    const qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=' + encodeURIComponent(url);
+    document.getElementById('qr-img').src = qrApi;
+
+    // Zapisz w localStorage, aby przy następnym otwarciu od razu pokazać poprzedni link
+    localStorage.setItem('hiline_review_url', url);
+  }
+
+  // Wczytaj zapisany link przy starcie
+  window.addEventListener('DOMContentLoaded', function() {
+    const saved = localStorage.getItem('hiline_review_url');
+    if (saved) {
+      document.getElementById('review-url').value = saved;
+      generateQR();
+    } else {
+      // Domyślny placeholder QR z linkiem do strony Hiline
+      document.getElementById('qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=10&data=' + encodeURIComponent('https://hiline-detailing.netlify.app');
+    }
+  });
+</script>
+
+</body>
+</html>
