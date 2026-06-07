@@ -807,6 +807,15 @@
       <label>Uwagi</label>
       <textarea id="a-uwagi" placeholder="Opcjonalne uwagi..."></textarea>
     </div>
+    <div class="form-group" style="margin-top:8px">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;color:var(--white);font-size:13px;line-height:1.5">
+        <input type="checkbox" id="a-rodo" style="margin-top:2px;accent-color:var(--red);width:16px;height:16px;flex-shrink:0">
+        <span>
+          Klient wyraził zgodę na przetwarzanie danych osobowych przez Hiline Wrap &amp; Detailing (Łady Warszawa) w celu realizacji usługi i wysyłki przypomnień serwisowych drogą e-mail, zgodnie z RODO.
+          <span style="display:block;color:var(--muted);font-size:11px;margin-top:2px">Wymagane gdy podano adres e-mail. Datę zgody zapisujemy automatycznie.</span>
+        </span>
+      </label>
+    </div>
     <div class="modal-actions">
       <button class="btn-sm btn-gold" onclick="addClientManual()">+ Dodaj klienta</button>
       <button class="btn-sm btn-outline" onclick="closeAddModalDirect()">Anuluj</button>
@@ -1218,6 +1227,7 @@
       if (id === 'a-tel') el.value = '+48 ';
       else el.value = '';
     });
+    document.getElementById('a-rodo').checked = false;
   }
 
   // Mapowanie MailerLite service_type → klucz lokalnego harmonogramu
@@ -1234,6 +1244,11 @@
     const tel = document.getElementById('a-tel').value.trim();
     if (!name || !tel) { alert('Imię i Telefon są wymagane'); return; }
     const email = document.getElementById('a-email').value.trim();
+    const rodoAccepted = document.getElementById('a-rodo').checked;
+    if (email && !rodoAccepted) {
+      alert('Zaznacz zgodę RODO — jest wymagana gdy podajesz adres e-mail klienta.');
+      return;
+    }
     const car = document.getElementById('a-car').value.trim() || '—';
     const usluga = document.getElementById('a-usluga').value;
     const serviceType = document.getElementById('a-powloka-type').value;
@@ -1255,6 +1270,8 @@
       serviceType: serviceType,
       dataAdded: new Date().toISOString().split('T')[0],
       dataSerwisu: new Date().toISOString().split('T')[0],
+      rodoAccepted: rodoAccepted,
+      rodoDate: rodoAccepted ? new Date().toISOString().split('T')[0] : null,
       historia: []
     };
 
