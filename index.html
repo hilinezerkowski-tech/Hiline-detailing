@@ -241,6 +241,12 @@
           </select>
         </div>
       </div>
+      <div style="margin-top:16px;margin-bottom:4px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;color:#ccc;font-size:13px;line-height:1.5">
+          <input type="checkbox" id="f-rodo" style="margin-top:3px;accent-color:#ba2025;width:16px;height:16px;flex-shrink:0">
+          <span>Wyrażam zgodę na przetwarzanie moich danych osobowych przez Hiline Wrap &amp; Detailing (Łady Warszawa) w celu realizacji usługi i wysyłki przypomnień serwisowych drogą e-mail, zgodnie z RODO. <span style="color:#888;font-size:11px">(wymagane)</span></span>
+        </label>
+      </div>
       <button class="btn-primary" onclick="submitForm()">ZAREJESTRUJ POJAZD →</button>
     </div>
 
@@ -285,8 +291,13 @@
     const model   = document.getElementById('f-model').value.trim();
     const usluga  = document.getElementById('f-usluga').value;
 
+    const rodo = document.getElementById('f-rodo').checked;
     if (!name || !tel || !email || !marka) {
       alert('Wypełnij wymagane pola: Imię, Telefon, Email i Markę pojazdu');
+      return;
+    }
+    if (!rodo) {
+      alert('Zaznacz zgodę RODO — jest wymagana do rejestracji.');
       return;
     }
 
