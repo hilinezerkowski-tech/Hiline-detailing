@@ -663,11 +663,10 @@
       <div class="form-group">
         <label>Typ usługi</label>
         <select id="m-usluga">
-          <option value="ceramika3">Powłoka ceramiczna 3-letnia</option>
-          <option value="ceramika5">Powłoka ceramiczna 5-letnia</option>
-          <option value="ppf">Folia PPF</option>
+          <option value="ceramika">Powłoka ceramiczna</option>
+          <option value="folia">Folia PPF</option>
           <option value="mycie">Mycie / Detailing</option>
-          <option value="zmiana_koloru">Zmiana koloru</option>
+          <option value="polerowanie">Polerowanie</option>
           <option value="inne">Inne</option>
         </select>
       </div>
@@ -684,7 +683,7 @@
     <div class="modal-section">
       <div class="modal-section-title">Plan przypomnień dla klienta</div>
       <div class="form-group">
-        <label>Typ zastosowanej powłoki</label>
+        <label>Typ powłoki / gwarancji — steruje harmonogramem przypomnień</label>
         <select id="m-powloka" onchange="updateReminderSchedule()">
           <option value="ceramika3">Powłoka ceramiczna 3-letnia</option>
           <option value="ceramika5">Powłoka ceramiczna 5-letnia</option>
@@ -861,6 +860,14 @@
 
   function loadClients() {
     clients = JSON.parse(localStorage.getItem('hiline_clients') || '[]');
+    // Migracja: naprawa rekordów, w których usluga dostała wartość typu powłoki
+    // (stary bug: lista "Typ usługi" w karcie klienta miała opcje ceramika3/ppf itd.)
+    const uslugaFix = { ceramika3:'ceramika', ceramika5:'ceramika', powloka_3letnia:'ceramika', powloka_5letnia:'ceramika', ppf:'folia', folia_ppf:'folia', zmiana_koloru:'inne' };
+    let changed = false;
+    clients.forEach(c => {
+      if (uslugaFix[c.usluga]) { c.usluga = uslugaFix[c.usluga]; changed = true; }
+    });
+    if (changed) saveClients();
   }
 
   function saveClients() {
