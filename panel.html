@@ -521,16 +521,62 @@
   ::-webkit-scrollbar-track { background: var(--black); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+  /* ===== MOBILE (RWD) ===== */
   @media (max-width: 700px) {
-    nav { padding: 12px 16px; }
-    .main { padding: 16px; }
-    .stats-row { grid-template-columns: 1fr 1fr; }
-    table { font-size: 13px; }
-    td, th { padding: 10px 10px; }
-    .modal { padding: 20px; }
-  }
-  @media (max-width: 480px) {
-    .stats-row { grid-template-columns: 1fr; }
+    nav { padding: 10px 14px; }
+    .main { padding: 14px; }
+
+    /* Nagłówek: tytuł nad przyciskami, przyciski zawijane */
+    .panel-header { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 16px; }
+    .panel-header h2 { font-size: 26px; }
+    .panel-header > div { flex-wrap: wrap; }
+    .btn-csv { padding: 9px 12px; font-size: 12px; }
+    .btn-add { width: 100%; order: -1; padding: 13px; font-size: 15px; }
+
+    /* Statystyki w jednym rzędzie, kompaktowo */
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+    .stat-card { padding: 12px 10px; text-align: center; }
+    .stat-label { font-size: 9px; letter-spacing: 0.5px; }
+    .stat-value { font-size: 28px; }
+
+    /* Toolbar: szukajka nad filtrem */
+    .table-toolbar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px; }
+    .filter-select { width: 100%; }
+
+    /* TABELA -> KARTY KLIENTÓW */
+    thead { display: none; }
+    table, tbody { display: block; width: 100%; }
+    tbody tr {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3px 12px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    td { display: block; padding: 0; border: none; font-size: 14px; }
+    .c-klient { grid-column: 1; grid-row: 1; }
+    .c-akcje  { grid-column: 2; grid-row: 1; justify-self: end; }
+    .c-pojazd { grid-column: 1; grid-row: 2; }
+    .c-tel    { grid-column: 2; grid-row: 2; justify-self: end; font-size: 13px; }
+    .c-usluga { grid-column: 1; grid-row: 3; margin-top: 5px; }
+    .c-serwis { grid-column: 2; grid-row: 3; justify-self: end; margin-top: 5px; font-size: 12px; }
+    .c-serwis .reminder-tag::before { content: '🔔 '; }
+    .wa-btn { padding: 7px 12px; }
+
+    /* Modale: pełna szerokość, wygodne dotykowo */
+    .modal-overlay, .add-modal-overlay { padding: 8px; align-items: flex-end; }
+    .modal { max-width: 100%; max-height: 96dvh; padding: 18px 16px; border-radius: 16px 16px 8px 8px; }
+    .info-grid { grid-template-columns: 1fr; gap: 10px; }
+    .modal-actions { position: sticky; bottom: 0; background: var(--dark); padding: 10px 0 2px; margin-top: 14px; }
+    .modal-actions .btn-sm { flex: 1 1 45%; padding: 12px 10px; }
+
+    /* iOS: font >=16px w polach zapobiega auto-zoomowi przy fokusie */
+    input[type="text"], input[type="date"], input[type="email"],
+    input[type="tel"], input[type="password"], select, textarea, .search-input { font-size: 16px; }
+
+    .empty-state { padding: 36px 16px; }
+    .schedule-date { min-width: 76px; font-size: 12px; }
+    .schedule-item { font-size: 12px; padding: 7px 10px; }
   }
 </style>
 
@@ -784,24 +830,16 @@
       <input type="text" id="a-car" placeholder="BMW X5 2021">
     </div>
     <div class="form-group">
-      <label>Usługa</label>
+      <label>Typ usługi</label>
       <select id="a-usluga">
-        <option value="ceramika">Powłoka ceramiczna</option>
-        <option value="folia">Folia PPF</option>
+        <option value="powloka_3letnia">Powłoka ceramiczna 3-letnia</option>
+        <option value="powloka_5letnia">Powłoka ceramiczna 5-letnia</option>
+        <option value="folia_ppf">Folia PPF</option>
         <option value="mycie">Mycie detailingowe</option>
         <option value="polerowanie">Polerowanie</option>
         <option value="inne">Inne</option>
       </select>
-    </div>
-    <div class="form-group">
-      <label>Typ Powłoki / Gwarancja</label>
-      <select id="a-powloka-type">
-        <option value="">— Brak —</option>
-        <option value="powloka_3letnia">Powłoka ceramiczna 3-letnia</option>
-        <option value="powloka_5letnia">Powłoka ceramiczna 5-letnia</option>
-        <option value="folia_ppf">Folia PPF</option>
-        <option value="promocje">Inna usługa (Promocje)</option>
-      </select>
+      <span style="display:block;color:var(--muted);font-size:11px;margin-top:4px">Harmonogram przypomnień i grupa mailingowa ustawią się automatycznie.</span>
     </div>
     <div class="form-group">
       <label>Uwagi</label>
@@ -1157,12 +1195,12 @@
       const rs = reminderStatus(c);
       const waHref = 'https://wa.me/' + c.tel.replace(/\D/g, '');
       return '<tr onclick="openClient(\'' + c.id + '\')">' +
-        '<td><div class="td-name">' + c.name + '</div><div class="td-date">' + c.dataAdded + '</div></td>' +
-        '<td class="td-car">' + c.car + '</td>' +
-        '<td><span class="badge ' + badgeClass(c.usluga) + '">' + badgeLabel(c.usluga) + '</span></td>' +
-        '<td><a href="tel:' + c.tel + '" onclick="event.stopPropagation()" style="color:var(--red);text-decoration:none;font-weight:600">' + c.tel + '</a></td>' +
-        '<td><span class="reminder-tag ' + rs.cls + '">' + rs.label + '</span></td>' +
-        '<td><a class="wa-btn" href="' + waHref + '" target="_blank" onclick="event.stopPropagation()">' +
+        '<td class="c-klient"><div class="td-name">' + c.name + '</div><div class="td-date">' + c.dataAdded + '</div></td>' +
+        '<td class="td-car c-pojazd">' + c.car + '</td>' +
+        '<td class="c-usluga"><span class="badge ' + badgeClass(c.usluga) + '">' + badgeLabel(c.usluga) + '</span></td>' +
+        '<td class="c-tel"><a href="tel:' + c.tel + '" onclick="event.stopPropagation()" style="color:var(--red);text-decoration:none;font-weight:600">' + c.tel + '</a></td>' +
+        '<td class="c-serwis"><span class="reminder-tag ' + rs.cls + '">' + rs.label + '</span></td>' +
+        '<td class="c-akcje"><a class="wa-btn" href="' + waHref + '" target="_blank" onclick="event.stopPropagation()">' +
         '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>' +
         'WA</a></td></tr>';
     }).join('');
@@ -1353,13 +1391,15 @@
     document.getElementById('a-rodo').checked = false;
   }
 
-  // Mapowanie MailerLite service_type → klucz lokalnego harmonogramu
-  const SERVICE_TYPE_TO_SCHEDULE = {
-    'powloka_3letnia': 'ceramika3',
-    'powloka_5letnia': 'ceramika5',
-    'folia_ppf':       'ppf',
-    'promocje':        'brak',
-    '':                'brak'
+  // Jedno pole "Typ usługi" ustawia wszystko: kategorię (badge/filtr w tabeli),
+  // grupę MailerLite (service_type) i harmonogram przypomnień (powloka)
+  const ADD_SERVICE_MAP = {
+    'powloka_3letnia': { usluga: 'ceramika',    serviceType: 'powloka_3letnia', powloka: 'ceramika3' },
+    'powloka_5letnia': { usluga: 'ceramika',    serviceType: 'powloka_5letnia', powloka: 'ceramika5' },
+    'folia_ppf':       { usluga: 'folia',       serviceType: 'folia_ppf',       powloka: 'ppf' },
+    'mycie':           { usluga: 'mycie',       serviceType: 'promocje',        powloka: 'mycie' },
+    'polerowanie':     { usluga: 'polerowanie', serviceType: 'promocje',        powloka: 'brak' },
+    'inne':            { usluga: 'inne',        serviceType: 'promocje',        powloka: 'brak' }
   };
 
   function addClientManual() {
@@ -1373,13 +1413,11 @@
       return;
     }
     const car = document.getElementById('a-car').value.trim() || '—';
-    const usluga = document.getElementById('a-usluga').value;
-    const serviceType = document.getElementById('a-powloka-type').value;
+    const wybor = document.getElementById('a-usluga').value;
+    const mapped = ADD_SERVICE_MAP[wybor] || ADD_SERVICE_MAP.inne;
+    const usluga = mapped.usluga;
+    const serviceType = mapped.serviceType;
     const uwagi = document.getElementById('a-uwagi').value.trim();
-    // FIX: mapuj service_type z dropdownu na klucz harmonogramu (SCHEDULES)
-    const powlokaKey = SERVICE_TYPE_TO_SCHEDULE[serviceType] !== undefined
-      ? SERVICE_TYPE_TO_SCHEDULE[serviceType]
-      : 'brak';
 
     const client = {
       id: generateId(),
@@ -1389,7 +1427,7 @@
       car,
       usluga,
       uwagi,
-      powloka: powlokaKey,
+      powloka: mapped.powloka,
       serviceType: serviceType,
       dataAdded: new Date().toISOString().split('T')[0],
       dataSerwisu: new Date().toISOString().split('T')[0],
