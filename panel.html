@@ -566,6 +566,7 @@
     <span>Panel Zespołu</span>
   </div>
   <div class="nav-right">
+    <span id="sync-status" title="Status synchronizacji z chmurą" style="font-size:12px;margin-right:12px;color:var(--muted)">⏳</span>
     <button class="logout-btn" onclick="doLogout()">Wyloguj</button>
   </div>
 </nav>
@@ -824,8 +825,14 @@
 
 <script>
   // ===== AUTH =====
-  const PASS = 'Hiline2025';
+  const PASS = 'Hiline2025'; // fallback lokalny — gdy chmura nieskonfigurowana/offline
   const SESSION_KEY = 'hiline_auth';
+  const TOKEN_KEY = 'hiline_token';
+  const API = '/.netlify/functions/clients';
+
+  function panelToken() {
+    return sessionStorage.getItem(TOKEN_KEY) || PASS;
+  }
 
   function checkAuth() {
     if (sessionStorage.getItem(SESSION_KEY) === 'ok') {
@@ -834,17 +841,29 @@
     }
   }
 
-  function doLogin() {
+  function loginOk(val) {
+    sessionStorage.setItem(SESSION_KEY, 'ok');
+    sessionStorage.setItem(TOKEN_KEY, val);
+    document.getElementById('login-overlay').style.display = 'none';
+    init();
+  }
+
+  function loginFail() {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-pass').focus();
+  }
+
+  async function doLogin() {
     const val = document.getElementById('login-pass').value;
-    if (val === PASS) {
-      sessionStorage.setItem(SESSION_KEY, 'ok');
-      document.getElementById('login-overlay').style.display = 'none';
-      init();
-    } else {
-      document.getElementById('login-error').style.display = 'block';
-      document.getElementById('login-pass').value = '';
-      document.getElementById('login-pass').focus();
-    }
+    // Hasło sprawdzane na serwerze (Netlify Function) — nie da się go
+    // podejrzeć w kodzie strony. Fallback lokalny gdy chmura niedostępna.
+    try {
+      const r = await fetch(API, { headers: { 'x-panel-token': val } });
+      if (r.status === 401) { loginFail(); return; }
+      if (r.ok) { loginOk(val); return; }
+    } catch (e) { /* offline / funkcja nie wdrożona — fallback poniżej */ }
+    if (val === PASS) { loginOk(val); } else { loginFail(); }
   }
 
   function doLogout() {
@@ -857,21 +876,113 @@
   let editingId = null;
   let currentFilter = '';
   let currentUsluga = '';
+  let cloudMode = false;     // true = połączono ze wspólną bazą (Supabase)
+  let pushTimer = null;      // debounce wysyłki do chmury
+  let dirtyIds = new Set();  // ID klientów zmienionych lokalnie (wysyłamy tylko ich,
+                             // żeby nie nadpisywać cudzych zmian całą listą)
+
+  function markDirty(id) { if (id) dirtyIds.add(id); }
+
+  // Migracja: naprawa rekordów, w których usluga dostała wartość typu powłoki
+  // (stary bug: lista "Typ usługi" w karcie klienta miała opcje ceramika3/ppf itd.)
+  function normalizeClients(arr) {
+    const uslugaFix = { ceramika3:'ceramika', ceramika5:'ceramika', powloka_3letnia:'ceramika', powloka_5letnia:'ceramika', ppf:'folia', folia_ppf:'folia', zmiana_koloru:'inne' };
+    let changed = false;
+    arr.forEach(c => {
+      if (uslugaFix[c.usluga]) { c.usluga = uslugaFix[c.usluga]; changed = true; }
+    });
+    return changed;
+  }
 
   function loadClients() {
     clients = JSON.parse(localStorage.getItem('hiline_clients') || '[]');
-    // Migracja: naprawa rekordów, w których usluga dostała wartość typu powłoki
-    // (stary bug: lista "Typ usługi" w karcie klienta miała opcje ceramika3/ppf itd.)
-    const uslugaFix = { ceramika3:'ceramika', ceramika5:'ceramika', powloka_3letnia:'ceramika', powloka_5letnia:'ceramika', ppf:'folia', folia_ppf:'folia', zmiana_koloru:'inne' };
-    let changed = false;
-    clients.forEach(c => {
-      if (uslugaFix[c.usluga]) { c.usluga = uslugaFix[c.usluga]; changed = true; }
-    });
-    if (changed) saveClients();
+    if (normalizeClients(clients)) saveClients();
   }
 
   function saveClients() {
+    // localStorage = lokalny cache (działa też offline)
     localStorage.setItem('hiline_clients', JSON.stringify(clients));
+    // Chmura = wspólna baza dla całego zespołu (wysyłka z opóźnieniem 1s,
+    // żeby seria szybkich zmian poszła jednym requestem)
+    if (cloudMode) {
+      clearTimeout(pushTimer);
+      pushTimer = setTimeout(cloudPushAll, 1000);
+    }
+  }
+
+  // ===== CHMURA (wspólna baza Supabase przez Netlify Function) =====
+  function setSyncStatus(state) {
+    const el = document.getElementById('sync-status');
+    if (!el) return;
+    if (state === 'ok')      { el.textContent = '☁️ online';  el.style.color = '#4caf50'; el.title = 'Wspólna baza: połączono'; }
+    if (state === 'offline') { el.textContent = '📴 offline'; el.style.color = '#ff9800'; el.title = 'Brak połączenia — dane zapisują się lokalnie'; }
+    if (state === 'local')   { el.textContent = '💾 lokalnie'; el.style.color = 'var(--muted)'; el.title = 'Wspólna baza nieskonfigurowana — dane tylko na tym urządzeniu'; }
+    if (state === 'sync')    { el.textContent = '⏳';          el.style.color = 'var(--muted)'; el.title = 'Synchronizacja...'; }
+  }
+
+  async function cloudLoad() {
+    const r = await fetch(API, { headers: { 'x-panel-token': panelToken() } });
+    if (r.status === 503) throw new Error('not_configured');
+    if (!r.ok) throw new Error('cloud_error_' + r.status);
+    return r.json();
+  }
+
+  async function cloudPushAll(pushEverything) {
+    if (!cloudMode || clients.length === 0) return;
+    // Domyślnie wysyłamy tylko klientów zmienionych na tym urządzeniu;
+    // pushEverything=true przy migracji / imporcie CSV / wczytaniu backupu
+    const payload = pushEverything === true
+      ? clients
+      : clients.filter(function(c) { return dirtyIds.has(c.id); });
+    if (payload.length === 0) return;
+    try {
+      setSyncStatus('sync');
+      const r = await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-panel-token': panelToken() },
+        body: JSON.stringify(payload)
+      });
+      if (r.ok) { dirtyIds.clear(); setSyncStatus('ok'); }
+      else setSyncStatus('offline');
+    } catch (e) { setSyncStatus('offline'); }
+  }
+
+  async function cloudDelete(id) {
+    if (!cloudMode) return;
+    try {
+      await fetch(API, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', 'x-panel-token': panelToken() },
+        body: JSON.stringify({ id: id })
+      });
+    } catch (e) { /* offline — rekord zniknie z chmury przy następnym pełnym push */ }
+  }
+
+  async function cloudSync() {
+    try {
+      const cloud = await cloudLoad();
+      cloudMode = true;
+      if (cloud.length === 0 && clients.length > 0) {
+        // Jednorazowa migracja: lokalna baza -> chmura
+        await cloudPushAll(true);
+      } else {
+        // Chmura = źródło prawdy + dolej lokalne rekordy, których w niej nie ma
+        const cloudIds = new Set(cloud.map(c => c.id));
+        const localOnly = clients.filter(c => !cloudIds.has(c.id));
+        clients = cloud.concat(localOnly);
+        normalizeClients(clients);
+        localStorage.setItem('hiline_clients', JSON.stringify(clients));
+        if (localOnly.length > 0) {
+          localOnly.forEach(function(c) { markDirty(c.id); });
+          await cloudPushAll();
+        }
+      }
+      setSyncStatus('ok');
+      updateStats();
+      renderTable();
+    } catch (e) {
+      setSyncStatus(e.message === 'not_configured' ? 'local' : 'offline');
+    }
   }
 
   function generateId() {
@@ -958,9 +1069,10 @@
 
   // ===== INIT =====
   function init() {
-    loadClients();
+    loadClients();      // najpierw lokalny cache — panel działa od razu
     updateStats();
     renderTable();
+    cloudSync();        // w tle: pobierz wspólną bazę i scal
   }
 
   // ===== STATS =====
@@ -1162,6 +1274,7 @@
     if (!data || !opis) { alert('Data i opis wizyty są wymagane'); return; }
     if (!c.historia) c.historia = [];
     c.historia.push({ id: generateId(), data: data, opis: opis });
+    markDirty(c.id);
     saveClients();
     document.getElementById('h-opis').value = '';
     renderHistoria();
@@ -1172,6 +1285,7 @@
     if (!c || !c.historia) return;
     if (!confirm('Usunąć tę wizytę z historii?')) return;
     c.historia = c.historia.filter(function(h) { return h.id !== hid; });
+    markDirty(c.id);
     saveClients();
     renderHistoria();
   }
@@ -1184,6 +1298,7 @@
     c.dataSerwisu = document.getElementById('m-data').value;
     c.uwagi = document.getElementById('m-uwagi').value;
     c.powloka = document.getElementById('m-powloka').value;
+    markDirty(c.id);
     saveClients();
     updateStats();
     renderTable();
@@ -1194,6 +1309,7 @@
     if (!editingId) return;
     const c = clients.find(function(x) { return x.id === editingId; });
     if (!confirm('Usunąć klienta ' + c.name + '? Tej operacji nie można cofnąć.')) return;
+    cloudDelete(editingId); // usuń też ze wspólnej bazy (RODO)
     clients = clients.filter(function(x) { return x.id !== editingId; });
     saveClients();
     updateStats();
@@ -1283,6 +1399,7 @@
     };
 
     clients.unshift(client);
+    markDirty(client.id);
     saveClients();
     updateStats();
     renderTable();
@@ -1484,6 +1601,7 @@
           added++;
         }
         saveClients();
+        if (cloudMode) { clearTimeout(pushTimer); cloudPushAll(true); } // import -> wyślij całość do chmury
         updateStats();
         renderTable();
         alert('Import zakończony!\n✓ Dodano: ' + added + '\n⊘ Pominięto: ' + skipped);
@@ -1543,6 +1661,7 @@
           return c;
         });
         saveClients();
+        if (cloudMode) { clearTimeout(pushTimer); cloudPushAll(true); } // backup -> wyślij całość do chmury
         updateStats();
         renderTable();
         alert('✓ Backup wczytany!\nLiczba klientów: ' + clients.length);
