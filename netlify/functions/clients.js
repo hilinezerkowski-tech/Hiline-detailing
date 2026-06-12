@@ -9,6 +9,7 @@
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 const PANEL_TOKEN = process.env.PANEL_TOKEN;
+const ML_TOKEN = process.env.MAILERLITE_TOKEN; // do usuwania subskrybenta przy kasowaniu klienta (RODO)
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -71,13 +72,37 @@ exports.handler = async function (event) {
     }
 
     // DELETE — usuń klienta po id (RODO: prawo do bycia zapomnianym)
+    // Jeśli podano email, kasujemy też subskrybenta w MailerLite —
+    // automatyzacje natychmiast przestają do niego wysyłać.
     if (event.httpMethod === 'DELETE') {
-      const { id } = JSON.parse(event.body || '{}');
+      const { id, email } = JSON.parse(event.body || '{}');
       if (!id) {
         return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'missing_id' }) };
       }
       await sb('klienci?id=eq.' + encodeURIComponent(id), 'DELETE', null, { 'Prefer': 'return=minimal' });
-      return { statusCode: 200, headers: CORS, body: JSON.stringify({ success: true }) };
+
+      let mailerlite = 'skipped';
+      if (email && ML_TOKEN) {
+        try {
+          const mlHeaders = { 'Authorization': 'Bearer ' + ML_TOKEN, 'Content-Type': 'application/json' };
+          // Znajdź subskrybenta po adresie email
+          const find = await fetch('https://connect.mailerlite.com/api/subscribers/' + encodeURIComponent(email), { headers: mlHeaders });
+          if (find.ok) {
+            const sub = await find.json();
+            const subId = sub && sub.data && sub.data.id;
+            if (subId) {
+              const del = await fetch('https://connect.mailerlite.com/api/subscribers/' + subId, { method: 'DELETE', headers: mlHeaders });
+              mailerlite = del.ok ? 'deleted' : 'error_' + del.status;
+            }
+          } else {
+            mailerlite = find.status === 404 ? 'not_found' : 'error_' + find.status;
+          }
+        } catch (e) {
+          mailerlite = 'error';
+          console.error('MailerLite delete error:', e.message);
+        }
+      }
+      return { statusCode: 200, headers: CORS, body: JSON.stringify({ success: true, mailerlite: mailerlite }) };
     }
 
     return { statusCode: 405, headers: CORS, body: JSON.stringify({ error: 'method_not_allowed' }) };

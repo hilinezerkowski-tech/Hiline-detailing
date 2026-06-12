@@ -918,8 +918,13 @@
   let pushTimer = null;      // debounce wysyłki do chmury
   let dirtyIds = new Set();  // ID klientów zmienionych lokalnie (wysyłamy tylko ich,
                              // żeby nie nadpisywać cudzych zmian całą listą)
+  // ID klientów, którzy byli już kiedyś w chmurze. Dzięki temu odróżniamy:
+  // "jest lokalnie, brak w chmurze, NIE był synchronizowany" -> nowy, wyślij
+  // "jest lokalnie, brak w chmurze, BYŁ synchronizowany"    -> usunięty na innym urządzeniu, usuń lokalnie
+  let syncedIds = new Set(JSON.parse(localStorage.getItem('hiline_synced_ids') || '[]'));
 
   function markDirty(id) { if (id) dirtyIds.add(id); }
+  function saveSyncedIds() { localStorage.setItem('hiline_synced_ids', JSON.stringify([...syncedIds])); }
 
   // Migracja: naprawa rekordów, w których usluga dostała wartość typu powłoki
   // (stary bug: lista "Typ usługi" w karcie klienta miała opcje ceramika3/ppf itd.)
@@ -980,18 +985,26 @@
         headers: { 'Content-Type': 'application/json', 'x-panel-token': panelToken() },
         body: JSON.stringify(payload)
       });
-      if (r.ok) { dirtyIds.clear(); setSyncStatus('ok'); }
+      if (r.ok) {
+        dirtyIds.clear();
+        payload.forEach(function(c) { syncedIds.add(c.id); });
+        saveSyncedIds();
+        setSyncStatus('ok');
+      }
       else setSyncStatus('offline');
     } catch (e) { setSyncStatus('offline'); }
   }
 
-  async function cloudDelete(id) {
+  async function cloudDelete(id, email) {
+    syncedIds.delete(id);
+    saveSyncedIds();
     if (!cloudMode) return;
     try {
+      // email -> serwer usunie klienta także z MailerLite (stop dla przypomnień, RODO)
       await fetch(API, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', 'x-panel-token': panelToken() },
-        body: JSON.stringify({ id: id })
+        body: JSON.stringify({ id: id, email: email || '' })
       });
     } catch (e) { /* offline — rekord zniknie z chmury przy następnym pełnym push */ }
   }
@@ -1000,20 +1013,26 @@
     try {
       const cloud = await cloudLoad();
       cloudMode = true;
-      if (cloud.length === 0 && clients.length > 0) {
-        // Jednorazowa migracja: lokalna baza -> chmura
+      if (cloud.length === 0 && clients.length > 0 && syncedIds.size === 0) {
+        // Jednorazowa migracja: lokalna baza -> chmura (nigdy nic nie synchronizowano)
         await cloudPushAll(true);
+        syncedIds = new Set(clients.map(c => c.id));
+        saveSyncedIds();
       } else {
-        // Chmura = źródło prawdy + dolej lokalne rekordy, których w niej nie ma
+        // Chmura = źródło prawdy. Lokalne rekordy spoza chmury:
+        // - nigdy nie synchronizowane -> nowe (np. dodane offline) -> wyślij
+        // - już kiedyś zsynchronizowane -> usunięte na innym urządzeniu -> wyrzuć lokalnie
         const cloudIds = new Set(cloud.map(c => c.id));
-        const localOnly = clients.filter(c => !cloudIds.has(c.id));
-        clients = cloud.concat(localOnly);
+        const localNew = clients.filter(c => !cloudIds.has(c.id) && !syncedIds.has(c.id));
+        clients = cloud.concat(localNew);
         normalizeClients(clients);
         localStorage.setItem('hiline_clients', JSON.stringify(clients));
-        if (localOnly.length > 0) {
-          localOnly.forEach(function(c) { markDirty(c.id); });
+        if (localNew.length > 0) {
+          localNew.forEach(function(c) { markDirty(c.id); });
           await cloudPushAll();
         }
+        syncedIds = new Set(clients.map(c => c.id));
+        saveSyncedIds();
       }
       setSyncStatus('ok');
       updateStats();
@@ -1022,6 +1041,21 @@
       setSyncStatus(e.message === 'not_configured' ? 'local' : 'offline');
     }
   }
+
+  // Odświeżenie wspólnej bazy przy powrocie do aplikacji (max raz na 30 s),
+  // ale nie w trakcie niewysłanych zmian ani przy otwartej karcie klienta
+  let lastFocusSync = 0;
+  function focusSync() {
+    if (!cloudMode || dirtyIds.size > 0 || editingId) return;
+    const now = Date.now();
+    if (now - lastFocusSync < 30000) return;
+    lastFocusSync = now;
+    cloudSync();
+  }
+  window.addEventListener('focus', focusSync);
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') focusSync();
+  });
 
   function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -1346,8 +1380,8 @@
   function deleteClient() {
     if (!editingId) return;
     const c = clients.find(function(x) { return x.id === editingId; });
-    if (!confirm('Usunąć klienta ' + c.name + '? Tej operacji nie można cofnąć.')) return;
-    cloudDelete(editingId); // usuń też ze wspólnej bazy (RODO)
+    if (!confirm('Usunąć klienta ' + c.name + '?\nZostanie usunięty także z MailerLite — przestanie dostawać przypomnienia.\nTej operacji nie można cofnąć.')) return;
+    cloudDelete(editingId, c.email); // usuń też ze wspólnej bazy i z MailerLite (RODO)
     clients = clients.filter(function(x) { return x.id !== editingId; });
     saveClients();
     updateStats();
