@@ -1125,10 +1125,7 @@
       { months: 30, label: 'Sprawdzenie stanu folii' },
       { months: 36, label: '⭐ Propozycja odnowienia lub zmiany koloru!', final: true },
     ],
-    brak: [
-      { months: 6,  label: 'Kontrolny kontakt z klientem' },
-      { months: 12, label: 'Roczne przypomnienie o serwisie' },
-    ],
+    brak: [],
   };
 
   function addMonths(dateStr, months) {
@@ -1500,7 +1497,8 @@
       car: car || '',
       usluga: usluga || '',
       service_type: serviceType || 'promocje',
-      dataSerwisu: new Date().toISOString().split('T')[0]
+      dataSerwisu: new Date().toISOString().split('T')[0],
+      source: 'panel'
     };
     fetch('/.netlify/functions/subscribe', {
       method: 'POST',

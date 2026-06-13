@@ -54,7 +54,7 @@ exports.handler = async function(event) {
     const payload = { email: data.email, fields: { name: first_name || '', last_name: last_name || '', phone: data.tel || '', pojazd: data.car || '', usluga: data.usluga || '', data_serwisu: dataSerwisu, powloka: powlokaValue }, groups: groupIds, status: 'active' };
     const { ok, status, data: result } = await mlFetch('/subscribers', 'POST', payload);
     if (!ok) { console.error('ML error:', result); return { statusCode: status, headers: CORS_HEADERS, body: JSON.stringify({ error: result?.message || 'Błąd MailerLite' }) }; }
-    if (SUPABASE_URL && SERVICE_KEY) {
+    if (SUPABASE_URL && SERVICE_KEY && data.source !== 'panel') {
       try {
         const clientId = 'pub_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
         const clientRecord = { id: clientId, name: data.name || '', email: data.email || '', tel: data.tel || '', car: data.car || '', usluga: data.usluga || '', service_type: serviceType, dataSerwisu: dataSerwisu, dataAdded: new Date().toISOString().split('T')[0], zrodlo: 'formularz_publiczny', addedAt: new Date().toISOString() };
