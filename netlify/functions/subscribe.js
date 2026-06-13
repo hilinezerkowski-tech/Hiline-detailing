@@ -3,6 +3,10 @@
 const TOKEN = process.env.MAILERLITE_TOKEN;
 const API = 'https://connect.mailerlite.com/api';
 
+// Supabase — zapis do panelu CRM (te same env co clients.js)
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_KEY;
+
 if (!TOKEN) {
   console.error('Brak MAILERLITE_TOKEN w env. Ustaw zmienna w Netlify: Site settings -> Environment variables');
 }
@@ -154,6 +158,44 @@ exports.handler = async function(event) {
     }
 
     console.log('✅ Subscriber saved:', result?.data?.id, 'Email:', data.email, 'Grupy:', groupIds);
+
+    // Zapisz klienta do Supabase (panel CRM) — jeśli env vars skonfigurowane
+    if (SUPABASE_URL && SERVICE_KEY) {
+      try {
+        const clientId = 'pub_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+        const clientRecord = {
+          id: clientId,
+          imie: data.name || '',
+          email: data.email || '',
+          telefon: data.tel || '',
+          pojazd: data.car || '',
+          usluga: data.usluga || '',
+          service_type: data.service_type || 'promocje',
+          dataSerwisu: data.dataSerwisu || new Date().toISOString().split('T')[0],
+          zrodlo: 'formularz_publiczny',
+          addedAt: new Date().toISOString()
+        };
+        const sbRes = await fetch(SUPABASE_URL + '/rest/v1/klienci?on_conflict=id', {
+          method: 'POST',
+          headers: {
+            'apikey': SERVICE_KEY,
+            'Authorization': 'Bearer ' + SERVICE_KEY,
+            'Content-Type': 'application/json',
+            'Prefer': 'resolution=merge-duplicates,return=minimal'
+          },
+          body: JSON.stringify([{ id: clientId, dane: clientRecord, updated_at: new Date().toISOString() }])
+        });
+        if (sbRes.ok) {
+          console.log('✅ Supabase: klient zapisany', clientId);
+        } else {
+          const sbErr = await sbRes.text();
+          console.error('⚠️ Supabase error (niekrytyczny):', sbRes.status, sbErr);
+        }
+      } catch (sbEx) {
+        // Błąd Supabase nie blokuje odpowiedzi — MailerLite i tak dostał dane
+        console.error('⚠️ Supabase exception (niekrytyczny):', sbEx.message);
+      }
+    }
 
     return {
       statusCode: 200,
