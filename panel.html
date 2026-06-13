@@ -933,6 +933,14 @@
     let changed = false;
     arr.forEach(c => {
       if (uslugaFix[c.usluga]) { c.usluga = uslugaFix[c.usluga]; changed = true; }
+      // Mapowanie pól z formularza publicznego (imie→name, telefon→tel)
+      if (!c.name && c.imie)    { c.name = c.imie;    delete c.imie;    changed = true; }
+      if (!c.tel  && c.telefon) { c.tel  = c.telefon; delete c.telefon; changed = true; }
+      if (!c.car  && c.pojazd)  { c.car  = c.pojazd;  changed = true; }
+      // Fallbacki — renderTable nigdy nie crashuje na undefined
+      if (!c.name) { c.name = '(brak)'; changed = true; }
+      if (c.tel  == null) { c.tel  = ''; changed = true; }
+      if (c.car  == null) { c.car  = ''; changed = true; }
     });
     return changed;
   }
