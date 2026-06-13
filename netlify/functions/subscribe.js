@@ -43,7 +43,8 @@ exports.handler = async function(event) {
     const [first_name, ...rest] = (data.name || '').split(' ');
     const last_name = rest.join(' ');
     const dataSerwisu = data.dataSerwisu || new Date().toISOString().split('T')[0];
-    const serviceType = data.service_type || 'promocje';
+    const powlokaToSvc = { ceramika3: 'powloka_3letnia', ceramika5: 'powloka_5letnia', ppf: 'folia_ppf' };
+    const serviceType = data.service_type || powlokaToSvc[data.powloka] || powlokaToSvc[data.usluga] || 'promocje';
     const groupConfig = SERVICE_GROUPS[serviceType] || { groups: [DEFAULT_GROUP_ID] };
     const groupIds = groupConfig.groups.filter(id => id);
     let powlokaValue = data.powloka || '';
@@ -57,7 +58,7 @@ exports.handler = async function(event) {
     if (SUPABASE_URL && SERVICE_KEY && data.source !== 'panel') {
       try {
         const clientId = 'pub_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
-        const clientRecord = { id: clientId, name: data.name || '', email: data.email || '', tel: data.tel || '', car: data.car || '', usluga: data.usluga || '', service_type: serviceType, dataSerwisu: dataSerwisu, dataAdded: new Date().toISOString().split('T')[0], zrodlo: 'formularz_publiczny', addedAt: new Date().toISOString() };
+        const clientRecord = { id: clientId, name: data.name || '', email: data.email || '', tel: data.tel || '', car: data.car || '', usluga: data.usluga || '', powloka: powlokaValue || data.powloka || '', service_type: serviceType, dataSerwisu: dataSerwisu, dataAdded: new Date().toISOString().split('T')[0], zrodlo: 'formularz_publiczny', addedAt: new Date().toISOString() };
         const sbRes = await fetch(SUPABASE_URL + '/rest/v1/klienci?on_conflict=id', { method: 'POST', headers: { 'apikey': SERVICE_KEY, 'Authorization': 'Bearer ' + SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify([{ id: clientId, dane: clientRecord, updated_at: new Date().toISOString() }]) });
         if (sbRes.ok) { console.log('Supabase OK:', clientId); } else { console.error('Supabase error:', sbRes.status, await sbRes.text()); }
       } catch (sbEx) { console.error('Supabase exception:', sbEx.message); }
